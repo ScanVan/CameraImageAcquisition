@@ -244,16 +244,39 @@ void Images::loadData(std::string path) {
 
 void Images::saveData(std::string path) {
 // Saves the raw image and the camera data to file
-// Here path is the name of the image file without extension
+// Here path is the path to the directory where the images will be stored.
+// The image number and the camera index are extracted from the object.
 // The function will automatically add the .raw for the raw data image and .txt for the camera
 // configuration.
 	std::string ext = path.substr(path.find_last_of(".") + 1);
 
-	std::string path_raw = path + ".raw";
+	std::stringstream ss1 { };
+
+	ss1 << path;
+	ss1 << "img_";
+	ss1 << numImages;
+	ss1 << "_";
+	ss1 << cameraIdx;
+	ss1 << ".raw";
+
+	std::stringstream ss2 { };
+
+	ss2 << path;
+	ss2 << "img_";
+	ss2 << numImages;
+	ss2 << "_";
+	ss2 << cameraIdx;
+	ss2 << ".txt";
+
+	std::string path_raw;
+	ss1 >> path_raw;
+
 	saveImage (path_raw);
 	//std::string path_bmp = path + ".bmp";
 	//saveImage (path_bmp);
-	std::string path_data = path + ".txt";
+
+	std::string path_data;
+	ss2 >> path_data;
 	std::ofstream myFile(path_data);
 	if (myFile.is_open()) {
 		myFile << "Raw picture file: " << path_raw << std::endl;

@@ -13,7 +13,10 @@ public:
 	PairImages();
 	PairImages(const Images &a, const Images &b);
 	PairImages(const Images &&a, const Images &&b);
+	PairImages(const PairImages &a);
+	PairImages(PairImages &&a);
 	void showPair();
+	void savePair(std::string path);
 	PairImages & operator=(const PairImages &a);
 	PairImages & operator=(PairImages &&a);
 	virtual ~PairImages();

@@ -64,9 +64,11 @@ private:
 
 	std::string data_path = {"./data/"}; // default location where the images will be stored.
 
-	thread_safe_queue<long int> imgQueue {}; // The queue where the pair of images are stored.
+	thread_safe_queue<PairImages> imgQueue {}; // The queue where the pair of images are stored.
 
-	long int imgNum = 0;
+	long int imgNum = 0; // Counts the number of images grabbed from the camera
+
+	bool exitProgram = false;
 
 	void Init();
 
@@ -89,7 +91,15 @@ public:
 		return data_path;
 	}
 
+	bool imgQueueEmpty () {
+		return imgQueue.empty();
+	}
+
 	long int getImgNum () { return imgNum; };
+
+	bool getExitStatus () {
+		return exitProgram;
+	}
 
 	void GrabImages();
 	void StoreImages();

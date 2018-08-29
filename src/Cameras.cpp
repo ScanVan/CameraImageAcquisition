@@ -199,6 +199,9 @@ void Cameras::GrabImages() {
 	Images img0 {height, width};
 	Images img1 {height, width};
 
+	img0.setCameraIdx(0);
+	img1.setCameraIdx(1);
+
 	for (size_t i = 0; i < cameras.GetSize() && cameras.IsGrabbing(); ++i) {
 		// CInstantCameraArray::RetrieveResult will return grab results in the order they arrive.
 		cameras.RetrieveResult(DefaultTimeout_ms, ptrGrabResult, TimeoutHandling_ThrowException);
@@ -221,14 +224,12 @@ void Cameras::GrabImages() {
 			cout << "GrabSucceeded: " << ptrGrabResult->GrabSucceeded() << endl;
 			uint8_t *pImageBuffer = static_cast<uint8_t *> (ptrGrabResult->GetBuffer());
 
-			++imgNum; // increase the image number;
+
 
 			// Copy image to the object's buffer
 			if (sortedCameraIdx[cameraIndex] == 0) {
-				img0.setImgNumber(imgNum);
 				img0.copyBuffer(reinterpret_cast<char *> (pImageBuffer));
 			} else {
-				img1.setImgNumber(imgNum);
 				img1.copyBuffer(reinterpret_cast<char *> (pImageBuffer));
 			}
 
@@ -244,18 +245,23 @@ void Cameras::GrabImages() {
 	//img0.show("0");
 	//img1.show("1");
 
+	++imgNum; // increase the image number;
+
+	img0.setImgNumber(imgNum);
+	img1.setImgNumber(imgNum);
 
 	PairImages imgs {std::move(img0), std::move(img1)};
+	//PairImages imgs {img0, img1};
 //	imgs.showPair();
 //	cv::waitKey(1);
 //
 
-	imgQueue.push (imgNum);
+	imgQueue.push (imgs);
 
-	PairImages imgs1 {};
-	imgs1 = imgs;
-	imgs1.showPair();
-	cv::waitKey(1);
+	//PairImages imgs1 {};
+	//imgs1 = imgs;
+	//imgs1.showPair();
+	//cv::waitKey(1);
 
 
 	// In case you want to trigger again you should wait for the camera
@@ -268,10 +274,15 @@ void Cameras::GrabImages() {
 
 void Cameras::StoreImages() {
 
-	while (imgNum < 10) {
-		std::shared_ptr<long int> num{};
-		num = imgQueue.wait_pop();
-		std::cout << *num << " " << std::flush;
+	int key {};
+	std::shared_ptr<PairImages> imgs { };
+	imgs = imgQueue.wait_pop();
+	imgs->savePair(data_path);
+	imgs->showPair();
+	key = cv::waitKey(1);
+	if (key == 27) {
+	// if ESC key is pressed signal to exit the program
+		exitProgram = true;
 	}
 }
 

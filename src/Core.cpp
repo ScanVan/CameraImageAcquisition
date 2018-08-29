@@ -77,7 +77,7 @@ std::string GetCurrentWorkingDir( void ) {
 
 void GrabImages(ScanVan::Cameras *cams) {
 
-	for (int i { 0 }; i < 10; ++i) {
+	while (cams->getExitStatus() == false) {
 		cams->GrabImages();
 	}
 
@@ -85,7 +85,10 @@ void GrabImages(ScanVan::Cameras *cams) {
 
 void StoreImages(ScanVan::Cameras *cams) {
 
-	while (cams->getImgNum() < 10) {
+	while (cams->getExitStatus() == false) {
+		cams->StoreImages();
+	}
+	while (cams->imgQueueEmpty() == false) {
 		cams->StoreImages();
 	}
 
@@ -100,11 +103,13 @@ int main(int argc, char* argv[])
 
     std::string curr_path = GetCurrentWorkingDir();
     std::string config_path = curr_path + "/" + "config/";
+    std::string data_path = "/media/scanvan/Windows/Users/marcelo.kaihara.HEVS/Documents/img/";
 
     try {
 
     	//ScanVan::Cameras cams { config_path };
 		ScanVan::Cameras cams {};
+		cams.setDataPath(data_path);
 
 		std::thread thGrabImages(GrabImages, &cams);
 		std::thread thStoreImages(StoreImages, &cams);
