@@ -1,0 +1,8 @@
+*.bmp
+*.raw
+*.txt
+.project
+.cproject
+.settings
+/Debug
+/Release

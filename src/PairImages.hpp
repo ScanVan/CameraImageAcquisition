@@ -1,0 +1,24 @@
+#ifndef PAIRIMAGES_HPP_
+#define PAIRIMAGES_HPP_
+
+#include "Images.hpp"
+
+namespace ScanVan {
+
+class PairImages {
+	Images *p_img0;
+	Images *p_img1;
+
+public:
+	PairImages();
+	PairImages(const Images &a, const Images &b);
+	PairImages(const Images &&a, const Images &&b);
+	void showPair();
+	PairImages & operator=(const PairImages &a);
+	PairImages & operator=(PairImages &&a);
+	virtual ~PairImages();
+};
+
+} /* namespace ScanVan */
+
+#endif /* PAIRIMAGES_HPP_ */
