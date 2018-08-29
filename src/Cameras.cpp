@@ -221,13 +221,16 @@ void Cameras::GrabImages() {
 			cout << "GrabSucceeded: " << ptrGrabResult->GrabSucceeded() << endl;
 			uint8_t *pImageBuffer = static_cast<uint8_t *> (ptrGrabResult->GetBuffer());
 
+			++imgNum; // increase the image number;
+
 			// Copy image to the object's buffer
 			if (sortedCameraIdx[cameraIndex] == 0) {
+				img0.setImgNumber(imgNum);
 				img0.copyBuffer(reinterpret_cast<char *> (pImageBuffer));
 			} else {
+				img1.setImgNumber(imgNum);
 				img1.copyBuffer(reinterpret_cast<char *> (pImageBuffer));
 			}
-
 
 			cout << "Gray value of first pixel: " << static_cast<uint32_t> (pImageBuffer[0]) << endl << endl;
 		} else {
@@ -246,7 +249,8 @@ void Cameras::GrabImages() {
 //	imgs.showPair();
 //	cv::waitKey(1);
 //
-	//imgQueue.push (imgs);
+
+	imgQueue.push (imgNum);
 
 	PairImages imgs1 {};
 	imgs1 = imgs;
@@ -260,6 +264,15 @@ void Cameras::GrabImages() {
 	// (see Grab_UsingGrabLoopThread sample for details).
 
 	cameras.StopGrabbing();
+}
+
+void Cameras::StoreImages() {
+
+	while (imgNum < 10) {
+		std::shared_ptr<long int> num{};
+		num = imgQueue.wait_pop();
+		std::cout << *num << " " << std::flush;
+	}
 }
 
 void Cameras::SaveParameters(){

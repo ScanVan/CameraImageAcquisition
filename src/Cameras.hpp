@@ -64,8 +64,9 @@ private:
 
 	std::string data_path = {"./data/"}; // default location where the images will be stored.
 
-	thread_safe_queue<PairImages> imgQueue {}; // The queue where the pair of images are stored.
+	thread_safe_queue<long int> imgQueue {}; // The queue where the pair of images are stored.
 
+	long int imgNum = 0;
 
 	void Init();
 
@@ -79,13 +80,19 @@ public:
 	void setDataPath (const std::string path) {
 		data_path = path;
 	}
+	void setImgNum (long int n) { imgNum = n; };
+
 	std::string getConfigPath () {
 		return config_path;
 	}
 	std::string getDataPath () {
 		return data_path;
 	}
+
+	long int getImgNum () { return imgNum; };
+
 	void GrabImages();
+	void StoreImages();
 	void SaveParameters();
 	void LoadParameters();
 	virtual ~Cameras();

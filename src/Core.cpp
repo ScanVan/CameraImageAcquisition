@@ -75,6 +75,22 @@ std::string GetCurrentWorkingDir( void ) {
 	return 0;
 } */
 
+void GrabImages(ScanVan::Cameras *cams) {
+
+	for (int i { 0 }; i < 10; ++i) {
+		cams->GrabImages();
+	}
+
+}
+
+void StoreImages(ScanVan::Cameras *cams) {
+
+	while (cams->getImgNum() < 10) {
+		cams->StoreImages();
+	}
+
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -87,13 +103,14 @@ int main(int argc, char* argv[])
 
     try {
 
-		ScanVan::Cameras cams { config_path };
-		//Camera cams {};
+    	//ScanVan::Cameras cams { config_path };
+		ScanVan::Cameras cams {};
 
-		for (int i {0}; i < 10; ++i) {
-			cams.GrabImages();
-		}
+		std::thread thGrabImages(GrabImages, &cams);
+		std::thread thStoreImages(StoreImages, &cams);
 
+		thGrabImages.join();
+		thStoreImages.join();
 		//cams.SaveParameters();
 
 	} catch (const GenericException &e) {

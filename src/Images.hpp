@@ -54,6 +54,7 @@ public:
 	void setAutoExpTime (int b) { autoExpTime = b; };
 	void setAutoGain (int b) { autoGain = b; };
 	void setSerialNumber (std::string sn) { serialNumber = sn; };
+	void setImgNumber (long int n) { numImages = n; };
 
 	size_t getHeight() { return height;};
 	size_t getWidth() { return width;};
@@ -67,6 +68,7 @@ public:
 	std::string getSerialNumber() { return serialNumber; };
 	int getAutoExpTime() { return autoExpTime; };
 	int getAutoGain() { return autoGain; };
+	long int getImgNumber () { return numImages; };
 
 	void getBuffer (char *p);
 	void copyBuffer (char *p);
