@@ -1,3 +1,14 @@
+//============================================================================
+// Name        : Cameras.hpp
+// Author      : Marcelo Kaihara
+// Version     : 1.0
+// Copyright   :
+// Description : It initializes the camera, sets the configuration of the cameras
+//				 from files. It gives the main interface to operate with the cameras
+//				 GrabImages, DisplayImages and StoreImages are the main member functions
+//				 that are executed in parallel.
+//============================================================================
+
 #ifndef CAMERAS_HPP_
 #define CAMERAS_HPP_
 

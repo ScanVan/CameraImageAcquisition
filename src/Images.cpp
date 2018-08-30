@@ -1,3 +1,13 @@
+//============================================================================
+// Name        : Images.cpp
+// Author      : Marcelo Kaihara
+// Version     : 1.0
+// Copyright   :
+// Description : It has the routines for manimulating the underlying images.
+// 				 It has functions to write and load images together with camera configuration
+//				 It has functions that displays the images on screen.
+//============================================================================
+
 #ifndef IMAGES_CPP_
 #define IMAGES_CPP_
 

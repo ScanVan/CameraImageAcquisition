@@ -1,3 +1,11 @@
+//============================================================================
+// Name        : Queue.cpp
+// Author      : Marcelo Kaihara
+// Version     : 1.0
+// Copyright   :
+// Description : It has the functions to manipulate a thread safe queue.
+//============================================================================
+
 #ifndef QUEUE_HPP_
 #define QUEUE_HPP_
 

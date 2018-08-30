@@ -1,3 +1,11 @@
+//============================================================================
+// Name        : PairImages.cpp
+// Author      : Marcelo Kaihara
+// Version     : 1.0
+// Copyright   :
+// Description : It encapsulates images from the two cameras into one entity.
+//============================================================================
+
 #include "PairImages.hpp"
 
 namespace ScanVan {

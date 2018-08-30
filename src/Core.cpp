@@ -1,9 +1,10 @@
 //============================================================================
 // Name        : Core.cpp
 // Author      : Marcelo Kaihara
-// Version     :
+// Version     : 1.0
 // Copyright   : 
-// Description : Grabs images from the camera and writes the data into file.
+// Description : Main source code. It grabs images from the two cameras and
+//				 displays them on the screen and stores them in the disk
 //============================================================================
 
 #include <time.h>   // for time

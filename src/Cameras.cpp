@@ -1,3 +1,14 @@
+//============================================================================
+// Name        : Cameras.cpp
+// Author      : Marcelo Kaihara
+// Version     : 1.0
+// Copyright   :
+// Description : It initializes the camera, sets the configuration of the cameras
+//				 from files. It gives the main interface to operate with the cameras
+//				 GrabImages, DisplayImages and StoreImages are the main member functions
+//				 that are executed in parallel.
+//============================================================================
+
 #include "Cameras.hpp"
 
 // The code assumes there are two cameras connected
@@ -14,6 +25,7 @@ namespace ScanVan {
 Cameras::Cameras() {
 	// It will not load the configuration file to the camera
 	loadParam = false;
+	// Loads the camera parameters from the file genparam.cfg under the config folder
 	LoadCameraConfig();
 	Init();
 }
@@ -23,6 +35,7 @@ Cameras::Cameras(std::string path_to_config_files): config_path { path_to_config
 	// Files are located under the folder path_to_config_files
 	// The names of the files are the serial number of the camera .pfs
 	loadParam = true;
+	// Loads the camera parameters from the file genparam.cfg under the config folder
 	LoadCameraConfig();
 	Init();
 }
