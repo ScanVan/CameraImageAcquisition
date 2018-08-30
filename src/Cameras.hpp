@@ -91,6 +91,10 @@ public:
 		return data_path;
 	}
 
+	size_t getQueueSize () {
+		return imgQueue.size();
+	}
+
 	bool imgQueueEmpty () {
 		return imgQueue.empty();
 	}

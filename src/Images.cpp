@@ -43,6 +43,7 @@ Images::Images(const Images &img) {
 	p_img = new std::vector<uint8_t> {*(img.p_img)};
 	numImages = img.numImages;
 	cameraIdx = img.cameraIdx;
+	serialNum = img.serialNum;
 	captureTime = img.captureTime;
 	exposureTime = img.exposureTime;
 	gain = img.gain;
@@ -59,6 +60,7 @@ Images::Images(Images &&img) {
 	img.p_img = nullptr;
 
 	cameraIdx = img.cameraIdx;
+	serialNum = img.serialNum;
 	captureTime = img.captureTime;
 	exposureTime = img.exposureTime;
 	gain = img.gain;
@@ -171,8 +173,8 @@ void Images::loadData(std::string path) {
 		ss.str(std::string());
 		ss.clear();
 		ss << token;
-		ss >> serialNumber;
-		std::cout << "Camera SN: " << serialNumber << std::endl;
+		ss >> serialNum;
+		std::cout << "Camera SN: " << serialNum << std::endl;
 
 		getline (myFile, line);
 		token = line.substr(line.find_first_of(":") + 1);
@@ -282,7 +284,7 @@ void Images::saveData(std::string path) {
 		myFile << "Raw picture file: " << path_raw << std::endl;
 		myFile << "Image number: " << numImages << std::endl;
 		myFile << "Camera Index: " << cameraIdx << std::endl;
-		myFile << "Camera SN: " << serialNumber << std::endl;
+		myFile << "Camera SN: " << serialNum << std::endl;
 		myFile << "Capture Time: " << convertTimeToString(captureTime) << std::endl;
 		myFile << "Exposure Time: " << exposureTime << std::endl;
 		myFile << "Gain: " << gain << std::endl;

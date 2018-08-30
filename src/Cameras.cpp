@@ -185,6 +185,9 @@ void Cameras::GrabImages() {
 	// The cameras won't transmit any image data, because they are configured to wait for an action command.
 	cameras.StartGrabbing();
 
+	auto tnow = std::chrono::system_clock::now();
+	auto captureTime = std::chrono::system_clock::to_time_t(tnow);
+
 	// Now we issue the action command to all devices in the subnet.
 	// The devices with a matching DeviceKey, GroupKey and valid GroupMask will grab an image.
 	pTL->IssueActionCommand(DeviceKey, GroupKey, AllGroupMask, subnet);
@@ -201,6 +204,49 @@ void Cameras::GrabImages() {
 
 	img0.setCameraIdx(0);
 	img1.setCameraIdx(1);
+
+	img0.setCaptureTime(captureTime);
+	img1.setCaptureTime(captureTime);
+
+	img0.setExposureTime(cameras[sortedCameraIdx[0]].ExposureTimeAbs.GetValue());
+	img1.setExposureTime(cameras[sortedCameraIdx[1]].ExposureTimeAbs.GetValue());
+
+	img0.setGain(cameras[sortedCameraIdx[0]].GainRaw.GetValue());
+	img1.setGain(cameras[sortedCameraIdx[1]].GainRaw.GetValue());
+
+	cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
+	img0.setBalanceR(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+	cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
+	img0.setBalanceG(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+	cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
+	img0.setBalanceB(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+
+	cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
+	img1.setBalanceR(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+	cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
+	img1.setBalanceG(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+	cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
+	img1.setBalanceB(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+
+	img0.setAutoExpTime(static_cast<int>(autoExpTimeCont));
+	img1.setAutoExpTime(static_cast<int>(autoExpTimeCont));
+
+	img0.setAutoGain(static_cast<int>(autoGainCont));
+	img1.setAutoGain(static_cast<int>(autoGainCont));
+
+	std::stringstream ss1 { };
+	std::string tstr1 { };
+	ss1 << cameras[sortedCameraIdx[0]].GetDeviceInfo().GetSerialNumber().c_str();
+	ss1 >> tstr1;
+
+	img0.setSerialNumber(tstr1);
+
+	std::stringstream ss2 { };
+	std::string tstr2 { };
+	ss2 << cameras[sortedCameraIdx[1]].GetDeviceInfo().GetSerialNumber().c_str();
+	ss2 >> tstr2;
+
+	img1.setSerialNumber(tstr2);
 
 	for (size_t i = 0; i < cameras.GetSize() && cameras.IsGrabbing(); ++i) {
 		// CInstantCameraArray::RetrieveResult will return grab results in the order they arrive.

@@ -86,6 +86,7 @@ void GrabImages(ScanVan::Cameras *cams) {
 void StoreImages(ScanVan::Cameras *cams) {
 
 	while (cams->getExitStatus() == false) {
+		std::cout << "=============================> Queue size: " << cams->getQueueSize() << std::endl;
 		cams->StoreImages();
 	}
 	while (cams->imgQueueEmpty() == false) {
@@ -103,7 +104,7 @@ int main(int argc, char* argv[])
 
     std::string curr_path = GetCurrentWorkingDir();
     std::string config_path = curr_path + "/" + "config/";
-    std::string data_path = "/media/scanvan/Windows/Users/marcelo.kaihara.HEVS/Documents/img/";
+    std::string data_path = "/media/Windows/Users/marcelo.kaihara.HEVS/Documents/img/";
 
     try {
 

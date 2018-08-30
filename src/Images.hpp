@@ -31,7 +31,7 @@ private:
 	int autoExpTime = 0;	// Auto Exposure Time
 	int autoGain = 0; 		// Auto Gain
 	long int numImages = 0;
-	std::string serialNumber{};
+	std::string serialNum{ };
 
 public:
 	Images();
@@ -53,7 +53,7 @@ public:
 	void setBalanceB (double b) { balanceB = b; };
 	void setAutoExpTime (int b) { autoExpTime = b; };
 	void setAutoGain (int b) { autoGain = b; };
-	void setSerialNumber (std::string sn) { serialNumber = sn; };
+	void setSerialNumber (const std::string &sn) { serialNum = sn; };
 	void setImgNumber (long int n) { numImages = n; };
 
 	size_t getHeight() { return height;};
@@ -65,7 +65,7 @@ public:
 	double getBalanceR () { return balanceR; };
 	double getBalanceG () { return balanceG; };
 	double getBalanceB () { return balanceB; };
-	std::string getSerialNumber() { return serialNumber; };
+	std::string getSerialNumber() { return serialNum; };
 	int getAutoExpTime() { return autoExpTime; };
 	int getAutoGain() { return autoGain; };
 	long int getImgNumber () { return numImages; };
