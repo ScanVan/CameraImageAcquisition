@@ -84,13 +84,13 @@ int main(int argc, char* argv[])
 
     std::string curr_path = GetCurrentWorkingDir();
     std::string config_path = curr_path + "/" + "config/";
-    std::string data_path = "/media/Windows/Users/marcelo.kaihara.HEVS/Documents/img/";
+    //std::string data_path = "/media/Windows/Users/marcelo.kaihara.HEVS/Documents/img/";
 
     try {
 
-    	//ScanVan::Cameras cams { config_path };
-		ScanVan::Cameras cams {};
-		cams.setDataPath(data_path);
+    	ScanVan::Cameras cams { config_path };
+		//ScanVan::Cameras cams {};
+		//cams.setDataPath(data_path);
 
 		std::thread thGrabImages(GrabImages, &cams);
 		std::thread thStoreImages(StoreImages, &cams);

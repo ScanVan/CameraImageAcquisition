@@ -119,6 +119,7 @@ public:
 	void DisplayImages();
 	void SaveParameters();
 	void LoadParameters();
+	void LoadCameraConfig();
 	virtual ~Cameras();
 };
 

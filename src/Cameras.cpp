@@ -14,6 +14,7 @@ namespace ScanVan {
 Cameras::Cameras() {
 	// It will not load the configuration file to the camera
 	loadParam = false;
+	LoadCameraConfig();
 	Init();
 }
 
@@ -22,6 +23,7 @@ Cameras::Cameras(std::string path_to_config_files): config_path { path_to_config
 	// Files are located under the folder path_to_config_files
 	// The names of the files are the serial number of the camera .pfs
 	loadParam = true;
+	LoadCameraConfig();
 	Init();
 }
 
@@ -358,6 +360,64 @@ void Cameras::LoadParameters(){
 	    std::cout << "Reading file back to camera's node map for camera with SN:"<< cameras[i].GetDeviceInfo().GetSerialNumber() << " ..." << std::endl;
 	    CFeaturePersistence::Load(filename.c_str(), &cameras[i].GetNodeMap(), true );
 	}
+}
+
+void Cameras::LoadCameraConfig() {
+
+	std::string path_data = config_path + "genparam.cfg";
+	std::ifstream myFile(path_data);
+	if (myFile.is_open()) {
+		std::stringstream ss { };
+		std::string line { };
+
+		getline(myFile, line);
+		std::string token = line.substr(line.find_last_of(":") + 1);
+		ss << token;
+		ss >> data_path;
+		std::cout << "Data path: " << data_path << std::endl;
+
+		getline(myFile, line);
+		token = line.substr(line.find_last_of(":") + 1);
+		ss.str(std::string());
+		ss.clear();
+		ss << token;
+		int val { };
+		ss >> val;
+		autoExpTimeCont = static_cast<bool>(val);
+		std::cout << "Auto Exposure Time Continuous: " << autoExpTimeCont << std::endl;
+
+		getline(myFile, line);
+		token = line.substr(line.find_last_of(":") + 1);
+		ss.str(std::string());
+		ss.clear();
+		ss << token;
+		val = 0;
+		ss >> val;
+		autoGainCont = static_cast<bool>(val);
+		std::cout << "Auto Gain Continuous: " << autoGainCont << std::endl;
+
+		getline(myFile, line);
+		token = line.substr(line.find_last_of(":") + 1);
+		ss.str(std::string());
+		ss.clear();
+		ss << token;
+		ss >> exposureTime;
+		std::cout << "Exposure Time: " << exposureTime << std::endl;
+
+		getline(myFile, line);
+		token = line.substr(line.find_last_of(":") + 1);
+		ss.str(std::string());
+		ss.clear();
+		ss << token;
+		ss >> gain;
+		std::cout << "Gain: " << gain << std::endl;
+
+		myFile.close();
+
+	} else {
+		throw std::runtime_error("Could not open the file to load camera data");
+	}
+
 }
 
 size_t Cameras::GetNumCam() {
