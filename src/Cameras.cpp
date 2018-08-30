@@ -287,28 +287,14 @@ void Cameras::GrabImages() {
 		}
 	}
 
-	//Images img {height, width, reinterpret_cast<char *> (pImageBuffer)};
-	//img0.show("0");
-	//img1.show("1");
-
 	++imgNum; // increase the image number;
 
 	img0.setImgNumber(imgNum);
 	img1.setImgNumber(imgNum);
 
-	PairImages imgs {std::move(img0), std::move(img1)};
-	//PairImages imgs {img0, img1};
-//	imgs.showPair();
-//	cv::waitKey(1);
-//
+	PairImages imgs2store {std::move(img0), std::move(img1)};
 
-	imgQueue.push (imgs);
-
-	//PairImages imgs1 {};
-	//imgs1 = imgs;
-	//imgs1.showPair();
-	//cv::waitKey(1);
-
+	imgDisplayQueue.push (imgs2store);
 
 	// In case you want to trigger again you should wait for the camera
 	// to become trigger-ready before issuing the next action command.
@@ -318,18 +304,25 @@ void Cameras::GrabImages() {
 	cameras.StopGrabbing();
 }
 
-void Cameras::StoreImages() {
-
-	int key {};
+void Cameras::DisplayImages() {
+	int key { };
 	std::shared_ptr<PairImages> imgs { };
-	imgs = imgQueue.wait_pop();
-	imgs->savePair(data_path);
+	imgs = imgDisplayQueue.wait_pop();
 	imgs->showPair();
+	imgStorageQueue.push (*imgs);
 	key = cv::waitKey(1);
 	if (key == 27) {
-	// if ESC key is pressed signal to exit the program
+		// if ESC key is pressed signal to exit the program
 		exitProgram = true;
 	}
+}
+
+void Cameras::StoreImages() {
+
+	std::shared_ptr<PairImages> imgs { };
+	imgs = imgStorageQueue.wait_pop();
+	imgs->savePair(data_path);
+
 }
 
 void Cameras::SaveParameters(){

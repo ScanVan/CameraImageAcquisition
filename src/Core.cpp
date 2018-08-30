@@ -45,36 +45,6 @@ std::string GetCurrentWorkingDir( void ) {
 	return current_working_dir;
 }
 
-/*int main() {
-
-	std::string curr_path = GetCurrentWorkingDir();
-	std::string img_path = curr_path + "/" + "img_0_0.raw";
-	std::string img_path_out = curr_path + "/" + "img_0_1";
-	Images img1 {img_path};
-	img1.setCameraIdx(1);
-	auto tnow = std::chrono::system_clock::now();
-	time_t captureTime = std::chrono::system_clock::to_time_t(tnow);
-	img1.setCaptureTime(captureTime);
-	img1.setExposureTime(1.2);
-	img1.setAutoExpTime(1);
-	img1.setAutoGain(1);
-	img1.setBalanceR(4.4);
-	img1.setBalanceG(3.3);
-	img1.setBalanceB(2.2);
-	img1.setAutoGain(5);
-	img1.setGain(5);
-
-	img1.saveData(img_path_out);
-	//img1.show("Img1");
-	//cv::waitKey(0);
-	Images img2 {img1};
-	img2.saveData(img_path_out);
-	Images img3 {};
-	img3.loadData(img_path_out);
-
-	return 0;
-} */
-
 void GrabImages(ScanVan::Cameras *cams) {
 
 	while (cams->getExitStatus() == false) {
@@ -86,11 +56,21 @@ void GrabImages(ScanVan::Cameras *cams) {
 void StoreImages(ScanVan::Cameras *cams) {
 
 	while (cams->getExitStatus() == false) {
-		std::cout << "=============================> Queue size: " << cams->getQueueSize() << std::endl;
 		cams->StoreImages();
 	}
-	while (cams->imgQueueEmpty() == false) {
+	while (cams->imgStorageQueueEmpty() == false) {
 		cams->StoreImages();
+	}
+
+}
+
+void DisplayImages(ScanVan::Cameras *cams) {
+
+	while (cams->getExitStatus() == false) {
+		cams->DisplayImages();
+	}
+	while (cams->imgDisplayQueueEmpty() == false) {
+		cams->DisplayImages();
 	}
 
 }
@@ -114,9 +94,12 @@ int main(int argc, char* argv[])
 
 		std::thread thGrabImages(GrabImages, &cams);
 		std::thread thStoreImages(StoreImages, &cams);
+		std::thread thDisplayImages(DisplayImages, &cams);
 
 		thGrabImages.join();
 		thStoreImages.join();
+		thDisplayImages.join();
+
 		//cams.SaveParameters();
 
 	} catch (const GenericException &e) {

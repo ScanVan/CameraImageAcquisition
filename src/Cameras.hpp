@@ -64,7 +64,8 @@ private:
 
 	std::string data_path = {"./data/"}; // default location where the images will be stored.
 
-	thread_safe_queue<PairImages> imgQueue {}; // The queue where the pair of images are stored.
+	thread_safe_queue<PairImages> imgStorageQueue {}; // The queue where the pair of images are stored for storage.
+	thread_safe_queue<PairImages> imgDisplayQueue {}; // The queue where the pair of images are stored for display.
 
 	long int imgNum = 0; // Counts the number of images grabbed from the camera
 
@@ -91,12 +92,20 @@ public:
 		return data_path;
 	}
 
-	size_t getQueueSize () {
-		return imgQueue.size();
+	size_t getStorageQueueSize () {
+		return imgStorageQueue.size();
 	}
 
-	bool imgQueueEmpty () {
-		return imgQueue.empty();
+	size_t getDisplayQueueSize() {
+		return imgDisplayQueue.size();
+	}
+
+	bool imgStorageQueueEmpty () {
+		return imgStorageQueue.empty();
+	}
+
+	bool imgDisplayQueueEmpty() {
+		return imgDisplayQueue.empty();
 	}
 
 	long int getImgNum () { return imgNum; };
@@ -107,6 +116,7 @@ public:
 
 	void GrabImages();
 	void StoreImages();
+	void DisplayImages();
 	void SaveParameters();
 	void LoadParameters();
 	virtual ~Cameras();
