@@ -25,6 +25,7 @@ public:
 	PairImages(PairImages &&a);
 	void showPair();
 	void savePair(std::string path);
+	void setImgNumber (const long int &n);
 	PairImages & operator=(const PairImages &a);
 	PairImages & operator=(PairImages &&a);
 	virtual ~PairImages();

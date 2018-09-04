@@ -57,7 +57,9 @@ void GrabImages(ScanVan::Cameras *cams) {
 void StoreImages(ScanVan::Cameras *cams) {
 
 	while (cams->getExitStatus() == false) {
-		cams->StoreImages();
+		if (cams->imgStorageQueueEmpty() == false) {
+			cams->StoreImages();
+		}
 	}
 	while (cams->imgStorageQueueEmpty() == false) {
 		cams->StoreImages();
@@ -94,12 +96,12 @@ int main(int argc, char* argv[])
 		//cams.setDataPath(data_path);
 
 		std::thread thGrabImages(GrabImages, &cams);
-		std::thread thStoreImages(StoreImages, &cams);
 		std::thread thDisplayImages(DisplayImages, &cams);
+		std::thread thStoreImages(StoreImages, &cams);
 
 		thGrabImages.join();
-		thStoreImages.join();
 		thDisplayImages.join();
+		thStoreImages.join();
 
 		//cams.SaveParameters();
 

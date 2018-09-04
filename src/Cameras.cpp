@@ -159,13 +159,22 @@ void Cameras::Init() {
 
 		cameras[i].Width.SetValue(100);
 		cameras[i].Height.SetValue(100);
+	}
 
-		if (IsWritable(cameras[i].OffsetX)) {
-			cameras[i].OffsetX.SetValue(offsetX);
-		}
-		if (IsWritable(cameras[i].OffsetY)) {
-			cameras[i].OffsetY.SetValue(offsetY);
-		}
+	if (IsWritable(cameras[sortedCameraIdx[0]].OffsetX)) {
+		cameras[sortedCameraIdx[0]].OffsetX.SetValue(offsetX_0);
+	}
+	if (IsWritable(cameras[sortedCameraIdx[1]].OffsetX)) {
+		cameras[sortedCameraIdx[1]].OffsetX.SetValue(offsetX_1);
+	}
+	if (IsWritable(cameras[sortedCameraIdx[0]].OffsetY)) {
+		cameras[sortedCameraIdx[0]].OffsetY.SetValue(offsetY_0);
+	}
+	if (IsWritable(cameras[sortedCameraIdx[1]].OffsetY)) {
+		cameras[sortedCameraIdx[1]].OffsetY.SetValue(offsetY_1);
+	}
+
+	for (size_t i = 0; i < cameras.GetSize(); ++i) {
 
 		cameras[i].Width.SetValue(width);
 		cameras[i].Height.SetValue(height);
@@ -173,8 +182,14 @@ void Cameras::Init() {
 		cameras[i].AutoFunctionAOISelector.SetValue(AutoFunctionAOISelector_AOI1);
 		cameras[i].AutoFunctionAOIWidth.SetValue(aoi_width);
 		cameras[i].AutoFunctionAOIHeight.SetValue(aoi_height);
-		cameras[i].AutoFunctionAOIOffsetX.SetValue(aoi_offsetX);
-		cameras[i].AutoFunctionAOIOffsetY.SetValue(aoi_offsetY);
+	}
+
+	cameras[sortedCameraIdx[0]].AutoFunctionAOIOffsetX.SetValue(aoi_offsetX_0);
+	cameras[sortedCameraIdx[1]].AutoFunctionAOIOffsetX.SetValue(aoi_offsetX_1);
+	cameras[sortedCameraIdx[0]].AutoFunctionAOIOffsetY.SetValue(aoi_offsetY_0);
+	cameras[sortedCameraIdx[1]].AutoFunctionAOIOffsetY.SetValue(aoi_offsetY_1);
+
+	for (size_t i = 0; i < cameras.GetSize(); ++i) {
 
 		cameras[i].AutoTargetValue.SetValue(autoTargetVal);
 
@@ -302,10 +317,6 @@ void Cameras::GrabImages() {
 		}
 	}
 
-	++imgNum; // increase the image number;
-
-	img0.setImgNumber(imgNum);
-	img1.setImgNumber(imgNum);
 
 	PairImages imgs2store {std::move(img0), std::move(img1)};
 
@@ -324,11 +335,14 @@ void Cameras::DisplayImages() {
 	std::shared_ptr<PairImages> imgs { };
 	imgs = imgDisplayQueue.wait_pop();
 	imgs->showPair();
-	imgStorageQueue.push (*imgs);
 	key = cv::waitKey(1);
 	if (key == 27) {
 		// if ESC key is pressed signal to exit the program
 		exitProgram = true;
+	} else if ((key == 83) || (key == 115)) {
+		++imgNum; // increase the image number;
+		imgs->setImgNumber(imgNum);
+		imgStorageQueue.push (*imgs);
 	}
 }
 

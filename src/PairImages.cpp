@@ -47,6 +47,11 @@ void PairImages::savePair(std::string path) {
 	p_img1->saveData(path);
 }
 
+void PairImages::setImgNumber (const long int &n) {
+	p_img0->setImgNumber(n);
+	p_img1->setImgNumber(n);
+}
+
 PairImages & PairImages::operator=(const PairImages &a){
 	if (this != &a) {
 		delete p_img0;

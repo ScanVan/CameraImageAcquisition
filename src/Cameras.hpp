@@ -54,14 +54,23 @@ private:
     size_t height = 3008;
     size_t width = 3008;
 
-    size_t offsetX = 552;
-    size_t offsetY = 0;
+    // offsets of the camera 0
+    size_t offsetX_0 = 552 - 82;
+    size_t offsetY_0 = 0;
+
+    // offsets of the camera 1
+    size_t offsetX_1 = 552 - 8;
+    size_t offsetY_1 = 0;
 
     size_t aoi_height = (1520 - 595);
 	size_t aoi_width = (3131 - 958);
 
-	size_t aoi_offsetX = 958;
-	size_t aoi_offsetY = 595;
+	size_t aoi_offsetX_0 = 958 - 82;
+	size_t aoi_offsetY_0 = 595;
+
+	size_t aoi_offsetX_1 = 958 - 8;
+	size_t aoi_offsetY_1 = 595;
+
 
 	int autoTargetVal = 100;
 
