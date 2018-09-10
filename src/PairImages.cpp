@@ -42,6 +42,36 @@ void PairImages::showPair() {
 	p_img1->show("1");
 }
 
+void PairImages::showPairConcat() {
+	cv::Mat m0 = p_img0->convertToCvMat();
+	cv::Mat m1 = p_img1->convertToCvMat();
+	cv::Mat m;
+	cv::hconcat(m0, m1, m);
+
+	/// Display
+	cv::namedWindow("Image", CV_WINDOW_NORMAL);
+	cv::imshow("Image", m);
+}
+
+void PairImages::showUndistortPairConcat (const cv::Mat & map_0_1, const cv::Mat & map_0_2, const cv::Mat & map_1_1, const cv::Mat & map_1_2) {
+	cv::Mat m0 = p_img0->convertToCvMat();
+	cv::Mat m1 = p_img1->convertToCvMat();
+
+	cv::Mat undistorted_0;
+	cv::Mat undistorted_1;
+
+	// main remapping function that undistort the images
+	cv::remap(m0, undistorted_0, map_0_1, map_0_2, cv::INTER_CUBIC, cv::BORDER_CONSTANT);
+	cv::remap(m1, undistorted_1, map_1_1, map_1_2, cv::INTER_CUBIC, cv::BORDER_CONSTANT);
+
+	cv::Mat m;
+	cv::hconcat(undistorted_0, undistorted_1, m);
+
+	/// Display
+	cv::namedWindow("Undistorted", CV_WINDOW_NORMAL);
+	cv::imshow("Undistorted", m);
+}
+
 void PairImages::savePair(std::string path) {
 	p_img0->saveData(path);
 	p_img1->saveData(path);

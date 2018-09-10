@@ -84,6 +84,15 @@ private:
 
 	std::string data_path = {"./data/"}; // default location where the images will be stored.
 
+	std::string path_map_0_1 = { "./config/map_0_1.xml" }; // path to the map1.xml of the calibration of the camera 0
+	std::string path_map_0_2 = { "./config/map_0_2.xml" }; // path to the map2.xml of the calibration of the camera 0
+	std::string path_map_1_1 = { "./config/map_1_1.xml" }; // path to the map1.xml of the calibration of the camera 1
+	std::string path_map_1_2 = { "./config/map_1_2.xml" }; // path to the map2.xml of the calibration of the camera 1
+	cv::Mat map_0_1;
+	cv::Mat map_0_2;
+	cv::Mat map_1_1;
+	cv::Mat map_1_2;
+
 	thread_safe_queue<PairImages> imgStorageQueue {}; // The queue where the pair of images are stored for storage.
 	thread_safe_queue<PairImages> imgDisplayQueue {}; // The queue where the pair of images are stored for display.
 
@@ -140,6 +149,7 @@ public:
 	void SaveParameters();
 	void LoadParameters();
 	void LoadCameraConfig();
+	void LoadMap();
 	virtual ~Cameras();
 };
 

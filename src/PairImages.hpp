@@ -24,6 +24,8 @@ public:
 	PairImages(const PairImages &a);
 	PairImages(PairImages &&a);
 	void showPair();
+	void showPairConcat();
+	void showUndistortPairConcat (const cv::Mat & map_0_1, const cv::Mat & map_0_2, const cv::Mat & map_1_1, const cv::Mat & map_1_2);
 	void savePair(std::string path);
 	void setImgNumber (const long int &n);
 	PairImages & operator=(const PairImages &a);

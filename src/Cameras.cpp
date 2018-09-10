@@ -27,6 +27,7 @@ Cameras::Cameras() {
 	loadParam = false;
 	// Loads the camera parameters from the file genparam.cfg under the config folder
 	LoadCameraConfig();
+	LoadMap();
 	Init();
 }
 
@@ -37,6 +38,7 @@ Cameras::Cameras(std::string path_to_config_files): config_path { path_to_config
 	loadParam = true;
 	// Loads the camera parameters from the file genparam.cfg under the config folder
 	LoadCameraConfig();
+	LoadMap();
 	Init();
 }
 
@@ -334,7 +336,8 @@ void Cameras::DisplayImages() {
 	int key { };
 	std::shared_ptr<PairImages> imgs { };
 	imgs = imgDisplayQueue.wait_pop();
-	imgs->showPair();
+	imgs->showPairConcat();
+	imgs->showUndistortPairConcat(map_0_1, map_0_2, map_1_1, map_1_2);
 	key = cv::waitKey(1);
 	if (key == 27) {
 		// if ESC key is pressed signal to exit the program
@@ -439,11 +442,67 @@ void Cameras::LoadCameraConfig() {
 		ss >> gain;
 		std::cout << "Gain: " << gain << std::endl;
 
+		getline(myFile, line);
+		token = line.substr(line.find_last_of(":") + 1);
+		ss.str(std::string());
+		ss.clear();
+		ss << token;
+		ss >> path_map_0_1;
+		std::cout << "Path to map1.xml of camera 0: " << path_map_0_1 << std::endl;
+
+		getline(myFile, line);
+		token = line.substr(line.find_last_of(":") + 1);
+		ss.str(std::string());
+		ss.clear();
+		ss << token;
+		ss >> path_map_0_2;
+		std::cout << "Path to map2.xml of camera 0: " << path_map_0_2 << std::endl;
+
+		getline(myFile, line);
+		token = line.substr(line.find_last_of(":") + 1);
+		ss.str(std::string());
+		ss.clear();
+		ss << token;
+		ss >> path_map_1_1;
+		std::cout << "Path to map1.xml of camera 1: " << path_map_1_1 << std::endl;
+
+		getline(myFile, line);
+		token = line.substr(line.find_last_of(":") + 1);
+		ss.str(std::string());
+		ss.clear();
+		ss << token;
+		ss >> path_map_1_2;
+		std::cout << "Path to map2.xml of camera 1: " << path_map_1_2 << std::endl;
+
 		myFile.close();
 
 	} else {
 		throw std::runtime_error("Could not open the file to load camera data");
 	}
+
+}
+
+void Cameras::LoadMap() {
+
+	cv::FileStorage file_0_1(path_map_0_1, cv::FileStorage::READ);
+	file_0_1["mat_map1"] >> map_0_1;
+	file_0_1.release();
+	std::cout << "Read " << path_map_0_1 << std::endl;
+
+	cv::FileStorage file_0_2(path_map_0_2, cv::FileStorage::READ);
+	file_0_2["mat_map2"] >> map_0_2;
+	file_0_2.release();
+	std::cout << "Read " << path_map_0_2 << std::endl;
+
+	cv::FileStorage file_1_1(path_map_1_1, cv::FileStorage::READ);
+	file_1_1["mat_map1"] >> map_1_1;
+	file_1_1.release();
+	std::cout << "Read " << path_map_1_1 << std::endl;
+
+	cv::FileStorage file_1_2(path_map_1_2, cv::FileStorage::READ);
+	file_1_2["mat_map2"] >> map_1_2;
+	file_1_2.release();
+	std::cout << "Read " << path_map_1_2 << std::endl;
 
 }
 

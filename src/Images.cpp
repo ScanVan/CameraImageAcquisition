@@ -320,6 +320,14 @@ void Images::show() {
 	cv::imshow("Image", openCvImage);
 }
 
+cv::Mat Images::convertToCvMat () {
+// It converts to an RGB image and returns it as an opencv Mat
+	cv::Mat openCvImageRG8 = cv::Mat(height, width, CV_8UC1, p_img->data());
+	cv::Mat openCvImage;
+	cv::cvtColor(openCvImageRG8, openCvImage, cv::COLOR_BayerRG2RGB);
+	return openCvImage;
+}
+
 void Images::show (std::string name) {
 // shows the image in an opencv window with the name provided as parameter
 	cv::Mat openCvImageRG8 = cv::Mat(height, width, CV_8UC1, p_img->data());

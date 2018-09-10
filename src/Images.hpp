@@ -90,6 +90,8 @@ public:
 	void show ();
 	void show (std::string name);
 
+	cv::Mat convertToCvMat ();
+
 	std::string convertTimeToString (time_t t);
 	time_t convertStringToTime (std::string str);
 
