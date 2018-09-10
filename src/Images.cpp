@@ -54,7 +54,7 @@ Images::Images(const Images &img) {
 	numImages = img.numImages;
 	cameraIdx = img.cameraIdx;
 	serialNum = img.serialNum;
-	captureTime = img.captureTime;
+	captureTimeStr = img.captureTimeStr;
 	exposureTime = img.exposureTime;
 	gain = img.gain;
 	balanceR = img.balanceR;
@@ -71,7 +71,7 @@ Images::Images(Images &&img) {
 
 	cameraIdx = img.cameraIdx;
 	serialNum = img.serialNum;
-	captureTime = img.captureTime;
+	captureTimeStr = img.captureTimeStr;
 	exposureTime = img.exposureTime;
 	gain = img.gain;
 	balanceR = img.balanceR;
@@ -188,8 +188,8 @@ void Images::loadData(std::string path) {
 
 		getline (myFile, line);
 		token = line.substr(line.find_first_of(":") + 1);
-		captureTime = convertStringToTime (token);
-		std::cout << "Capture Time: " << ctime(&captureTime);
+		captureTimeStr = token;
+		std::cout << "Capture Time: " << captureTimeStr;
 
 		getline (myFile, line);
 		token = line.substr(line.find_last_of(":") + 1);
@@ -295,7 +295,7 @@ void Images::saveData(std::string path) {
 		myFile << "Image number: " << numImages << std::endl;
 		myFile << "Camera Index: " << cameraIdx << std::endl;
 		myFile << "Camera SN: " << serialNum << std::endl;
-		myFile << "Capture Time: " << convertTimeToString(captureTime) << std::endl;
+		myFile << "Capture Time: " << captureTimeStr << std::endl;
 		myFile << "Exposure Time: " << exposureTime << std::endl;
 		myFile << "Gain: " << gain << std::endl;
 		myFile << "Balance Red  : " << balanceR << std::endl;
@@ -402,7 +402,7 @@ Images & Images::operator=(const Images &a) {
 		p_img = new std::vector<uint8_t> {*(a.p_img)};
 		numImages = a.numImages;
 		cameraIdx = a.cameraIdx;
-		captureTime = a.captureTime;
+		captureTimeStr = a.captureTimeStr;
 		exposureTime = a.exposureTime;
 		gain = a.gain;
 		balanceR = a.balanceR;
@@ -421,7 +421,7 @@ Images & Images::operator=(Images &&a) {
 		a.p_img = nullptr;
 		numImages = a.numImages;
 		cameraIdx = a.cameraIdx;
-		captureTime = a.captureTime;
+		captureTimeStr = a.captureTimeStr;
 		exposureTime = a.exposureTime;
 		gain = a.gain;
 		balanceR = a.balanceR;

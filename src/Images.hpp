@@ -19,6 +19,7 @@
 #include <chrono>
 #include <sstream>
 
+
 // Include files to use OpenCV API
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
@@ -32,7 +33,7 @@ private:
 	size_t height = 3008;
 	size_t width = 3008;
 	size_t cameraIdx = 0;	// camera index
-	time_t captureTime = 0;	// capture time
+	std::string captureTimeStr = {}; // capture time in string format
 	double exposureTime = 0;// exposure time
 	int64_t gain = 0;		// gain
 	double balanceR = 0;	// white balance R
@@ -55,7 +56,7 @@ public:
 	void setHeight(size_t h) {height = h;};
 	void setWidth(size_t w) {width = w;};
 	void setCameraIdx (size_t idx) { cameraIdx = idx; };
-	void setCaptureTime (time_t ct) { captureTime = ct; };
+	void setCaptureTime (std::string ct) { captureTimeStr = ct; };
 	void setExposureTime (double et) { exposureTime = et; };
 	void setGain (int64_t g) { gain = g; };
 	void setBalanceR (double r) { balanceR = r; };
@@ -69,7 +70,7 @@ public:
 	size_t getHeight() { return height;};
 	size_t getWidth() { return width;};
 	size_t getCameraIdx() { return cameraIdx; };
-	time_t getCaptureTime() { return captureTime; };
+	std::string getCaptureTime() { return captureTimeStr; };
 	double getExposureTime() { return exposureTime; };
 	int64_t getGain() { return gain; };
 	double getBalanceR () { return balanceR; };
@@ -109,7 +110,7 @@ public:
 		out << "height: " << a.height << std::endl;
 		out << "width: " << a.width << std::endl;
 		out << "cameraIdx: " << a.cameraIdx << std::endl;
-		out << "captureTime: " << a.captureTime << std::endl;
+		out << "captureTime: " << a.captureTimeStr << std::endl;
 		out << "exposureTime: " << a.exposureTime << std::endl;
 		out << "gain: " << a.gain << std::endl;
 		out << "balanceR: " << a.balanceR << std::endl;

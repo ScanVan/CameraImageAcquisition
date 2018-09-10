@@ -28,6 +28,8 @@
 
 #include <algorithm>
 
+#include <sys/time.h>
+
 namespace ScanVan {
 
 class Cameras {
@@ -150,6 +152,8 @@ public:
 	void LoadParameters();
 	void LoadCameraConfig();
 	void LoadMap();
+	std::string StampTime();
+
 	virtual ~Cameras();
 };
 

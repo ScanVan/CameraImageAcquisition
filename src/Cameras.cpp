@@ -210,124 +210,131 @@ void Cameras::GrabImages() {
 	// Use an Action Command to Trigger Multiple Cameras at the Same Time.
 	//////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////
-
 	cout << endl << "Issuing an action command." << endl;
 
 	// Starts grabbing for all cameras.
 	// The cameras won't transmit any image data, because they are configured to wait for an action command.
 	cameras.StartGrabbing();
 
-	auto tnow = std::chrono::system_clock::now();
-	auto captureTime = std::chrono::system_clock::to_time_t(tnow);
+	try {
+		std::string captureTime = StampTime();
 
-	// Now we issue the action command to all devices in the subnet.
-	// The devices with a matching DeviceKey, GroupKey and valid GroupMask will grab an image.
-	pTL->IssueActionCommand(DeviceKey, GroupKey, AllGroupMask, subnet);
+		// Now we issue the action command to all devices in the subnet.
+		// The devices with a matching DeviceKey, GroupKey and valid GroupMask will grab an image.
+		pTL->IssueActionCommand(DeviceKey, GroupKey, AllGroupMask, subnet);
 
-	// This smart pointer will receive the grab result data.
-	CBaslerGigEGrabResultPtr ptrGrabResult {};
+		// This smart pointer will receive the grab result data.
+		CBaslerGigEGrabResultPtr ptrGrabResult { };
 
-	// Retrieve images from all cameras.
-	const int DefaultTimeout_ms  { 5000 };
+		// Retrieve images from all cameras.
+		const int DefaultTimeout_ms { 5000 };
 
-	// Create an Image objects for the grabbed data
-	Images img0 {height, width};
-	Images img1 {height, width};
+		// Create an Image objects for the grabbed data
+		Images img0 { height, width };
+		Images img1 { height, width };
 
-	img0.setCameraIdx(0);
-	img1.setCameraIdx(1);
+		img0.setCameraIdx(0);
+		img1.setCameraIdx(1);
 
-	img0.setCaptureTime(captureTime);
-	img1.setCaptureTime(captureTime);
+		img0.setCaptureTime(captureTime);
+		img1.setCaptureTime(captureTime);
 
-	img0.setExposureTime(cameras[sortedCameraIdx[0]].ExposureTimeAbs.GetValue());
-	img1.setExposureTime(cameras[sortedCameraIdx[1]].ExposureTimeAbs.GetValue());
+		img0.setExposureTime(cameras[sortedCameraIdx[0]].ExposureTimeAbs.GetValue());
+		img1.setExposureTime(cameras[sortedCameraIdx[1]].ExposureTimeAbs.GetValue());
 
-	img0.setGain(cameras[sortedCameraIdx[0]].GainRaw.GetValue());
-	img1.setGain(cameras[sortedCameraIdx[1]].GainRaw.GetValue());
+		img0.setGain(cameras[sortedCameraIdx[0]].GainRaw.GetValue());
+		img1.setGain(cameras[sortedCameraIdx[1]].GainRaw.GetValue());
 
-	cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
-	img0.setBalanceR(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
-	cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
-	img0.setBalanceG(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
-	cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
-	img0.setBalanceB(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+		cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
+		img0.setBalanceR(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+		cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
+		img0.setBalanceG(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+		cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
+		img0.setBalanceB(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
 
-	cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
-	img1.setBalanceR(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
-	cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
-	img1.setBalanceG(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
-	cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
-	img1.setBalanceB(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+		cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
+		img1.setBalanceR(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+		cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
+		img1.setBalanceG(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+		cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
+		img1.setBalanceB(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
 
-	img0.setAutoExpTime(static_cast<int>(autoExpTimeCont));
-	img1.setAutoExpTime(static_cast<int>(autoExpTimeCont));
+		img0.setAutoExpTime(static_cast<int>(autoExpTimeCont));
+		img1.setAutoExpTime(static_cast<int>(autoExpTimeCont));
 
-	img0.setAutoGain(static_cast<int>(autoGainCont));
-	img1.setAutoGain(static_cast<int>(autoGainCont));
+		img0.setAutoGain(static_cast<int>(autoGainCont));
+		img1.setAutoGain(static_cast<int>(autoGainCont));
 
-	std::stringstream ss1 { };
-	std::string tstr1 { };
-	ss1 << cameras[sortedCameraIdx[0]].GetDeviceInfo().GetSerialNumber().c_str();
-	ss1 >> tstr1;
+		std::stringstream ss1 { };
+		std::string tstr1 { };
+		ss1 << cameras[sortedCameraIdx[0]].GetDeviceInfo().GetSerialNumber().c_str();
+		ss1 >> tstr1;
 
-	img0.setSerialNumber(tstr1);
+		img0.setSerialNumber(tstr1);
 
-	std::stringstream ss2 { };
-	std::string tstr2 { };
-	ss2 << cameras[sortedCameraIdx[1]].GetDeviceInfo().GetSerialNumber().c_str();
-	ss2 >> tstr2;
+		std::stringstream ss2 { };
+		std::string tstr2 { };
+		ss2 << cameras[sortedCameraIdx[1]].GetDeviceInfo().GetSerialNumber().c_str();
+		ss2 >> tstr2;
 
-	img1.setSerialNumber(tstr2);
+		img1.setSerialNumber(tstr2);
 
-	for (size_t i = 0; i < cameras.GetSize() && cameras.IsGrabbing(); ++i) {
-		// CInstantCameraArray::RetrieveResult will return grab results in the order they arrive.
-		cameras.RetrieveResult(DefaultTimeout_ms, ptrGrabResult, TimeoutHandling_ThrowException);
+		for (size_t i = 0; i < cameras.GetSize() && cameras.IsGrabbing(); ++i) {
+			// CInstantCameraArray::RetrieveResult will return grab results in the order they arrive.
+			cameras.RetrieveResult(DefaultTimeout_ms, ptrGrabResult, TimeoutHandling_ThrowException);
 
-		// When the cameras in the array are created the camera context value
-		// is set to the index of the camera in the array.
-		// The camera context is a user-settable value.
-		// This value is attached to each grab result and can be used
-		// to determine the camera that produced the grab result.
-		intptr_t cameraIndex = ptrGrabResult->GetCameraContext();
+			// When the cameras in the array are created the camera context value
+			// is set to the index of the camera in the array.
+			// The camera context is a user-settable value.
+			// This value is attached to each grab result and can be used
+			// to determine the camera that produced the grab result.
+			intptr_t cameraIndex = ptrGrabResult->GetCameraContext();
 
-		// Image grabbed successfully?
-		if (ptrGrabResult->GrabSucceeded()) {
-			// Print the index and the model name of the camera.
-			cout << "Camera " << sortedCameraIdx[cameraIndex] << ": " << cameras[cameraIndex].GetDeviceInfo().GetModelName() << " ("
-					<< cameras[cameraIndex].GetDeviceInfo().GetIpAddress() << ") (SN:" <<
-					cameras[cameraIndex].GetDeviceInfo().GetSerialNumber() << ")"
-					<< endl;
-			// You could process the image here by accessing the image buffer.
-			cout << "GrabSucceeded: " << ptrGrabResult->GrabSucceeded() << endl;
-			uint8_t *pImageBuffer = static_cast<uint8_t *> (ptrGrabResult->GetBuffer());
+			// Image grabbed successfully?
+			if (ptrGrabResult->GrabSucceeded()) {
+				// Print the index and the model name of the camera.
+				cout << "Camera " << sortedCameraIdx[cameraIndex] << ": " << cameras[cameraIndex].GetDeviceInfo().GetModelName() << " ("
+						<< cameras[cameraIndex].GetDeviceInfo().GetIpAddress() << ") (SN:" << cameras[cameraIndex].GetDeviceInfo().GetSerialNumber()
+						<< ")" << endl;
+				// You could process the image here by accessing the image buffer.
+				cout << "GrabSucceeded: " << ptrGrabResult->GrabSucceeded() << endl;
+				uint8_t *pImageBuffer = static_cast<uint8_t *>(ptrGrabResult->GetBuffer());
 
+				// Copy image to the object's buffer
+				if (sortedCameraIdx[cameraIndex] == 0) {
+					img0.copyBuffer(reinterpret_cast<char *>(pImageBuffer));
+				} else {
+					img1.copyBuffer(reinterpret_cast<char *>(pImageBuffer));
+				}
 
-
-			// Copy image to the object's buffer
-			if (sortedCameraIdx[cameraIndex] == 0) {
-				img0.copyBuffer(reinterpret_cast<char *> (pImageBuffer));
+				cout << "Gray value of first pixel: " << static_cast<uint32_t>(pImageBuffer[0]) << endl << endl;
 			} else {
-				img1.copyBuffer(reinterpret_cast<char *> (pImageBuffer));
+				// If a buffer has been incompletely grabbed, the network bandwidth is possibly insufficient for transferring
+				// multiple images simultaneously. See note above c_maxCamerasToUse.
+				cout << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << endl;
+				throw std::runtime_error ("Buffer was incompletely grabbed.");
 			}
-
-			cout << "Gray value of first pixel: " << static_cast<uint32_t> (pImageBuffer[0]) << endl << endl;
-		} else {
-			// If a buffer has been incompletely grabbed, the network bandwidth is possibly insufficient for transferring
-			// multiple images simultaneously. See note above c_maxCamerasToUse.
-			cout << "Error: " << ptrGrabResult->GetErrorCode() << " " << ptrGrabResult->GetErrorDescription() << endl;
 		}
+
+		PairImages imgs2store { std::move(img0), std::move(img1) };
+
+		imgDisplayQueue.push(imgs2store);
+
+		// In case you want to trigger again you should wait for the camera
+		// to become trigger-ready before issuing the next action command.
+		// To avoid overtriggering you should call cameras[0].WaitForFrameTriggerReady
+		// (see Grab_UsingGrabLoopThread sample for details).
+
+	} catch (const GenericException &e) {
+		// Error handling
+		cerr << "=============================================================" << endl;
+		cerr << "An exception occurred." << endl << e.GetDescription() << endl;
+		cerr << "=============================================================" << endl;
+	} catch (const std::exception &e) {
+		cerr << "=============================================================" << endl;
+		cerr << "An exception occurred." << endl << e.what() << endl;
+		cerr << "=============================================================" << endl;
 	}
-
-
-	PairImages imgs2store {std::move(img0), std::move(img1)};
-
-	imgDisplayQueue.push (imgs2store);
-
-	// In case you want to trigger again you should wait for the camera
-	// to become trigger-ready before issuing the next action command.
-	// To avoid overtriggering you should call cameras[0].WaitForFrameTriggerReady
-	// (see Grab_UsingGrabLoopThread sample for details).
 
 	cameras.StopGrabbing();
 }
@@ -508,6 +515,20 @@ void Cameras::LoadMap() {
 
 size_t Cameras::GetNumCam() {
 	return cameras.GetSize();
+}
+
+std::string Cameras::StampTime() {
+	timeval curTime{};
+	gettimeofday(&curTime, nullptr);
+	long int milli { curTime.tv_usec / 1000 };
+
+	char buffer [80] {};
+	strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
+
+	char currentTime[84] = "";
+	sprintf(currentTime, "%s:%d", buffer, static_cast<int> (milli));
+	std::string myTime {currentTime};
+	return myTime;
 }
 
 Cameras::~Cameras() {
