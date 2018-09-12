@@ -27,6 +27,9 @@
 #include <pylon/gige/ActionTriggerConfiguration.h>
 #include "Cameras.hpp"
 
+#include <time.h>
+#include <chrono>
+
 // Settings to use Basler GigE cameras.
 using namespace Basler_GigECameraParams;
 
@@ -48,18 +51,42 @@ std::string GetCurrentWorkingDir( void ) {
 
 void GrabImages(ScanVan::Cameras *cams) {
 
+	// For measuring the grabbing time
+	std::chrono::high_resolution_clock::time_point t1{};
+	std::chrono::high_resolution_clock::time_point t2{};
+
+	long int counter { 0 };
+
+	// Measure the starting of grabbing
+	t1 = std::chrono::high_resolution_clock::now();
+
 	while (cams->getExitStatus() == false) {
+
 		cams->GrabImages();
+
+/*
+		std::cout << "DQueue: " << cams->getDisplayQueueSize() << std::endl;
+		std::cout << "SQueue: " << cams->getStorageQueueSize() << std::endl;
+*/
+
+		++counter;
+
 	}
+
+	// Measure the end of the grabbing
+	t2 = std::chrono::high_resolution_clock::now();
+
+	// Measure duration of grabbing
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+	cout << "fps: " << double(1000000) * counter / duration << endl;
+
 
 }
 
 void StoreImages(ScanVan::Cameras *cams) {
 
 	while (cams->getExitStatus() == false) {
-		if (cams->imgStorageQueueEmpty() == false) {
-			cams->StoreImages();
-		}
+		cams->StoreImages();
 	}
 	while (cams->imgStorageQueueEmpty() == false) {
 		cams->StoreImages();
@@ -70,7 +97,9 @@ void StoreImages(ScanVan::Cameras *cams) {
 void DisplayImages(ScanVan::Cameras *cams) {
 
 	while (cams->getExitStatus() == false) {
+
 		cams->DisplayImages();
+
 	}
 	while (cams->imgDisplayQueueEmpty() == false) {
 		cams->DisplayImages();
@@ -91,8 +120,8 @@ int main(int argc, char* argv[])
 
     try {
 
-    	ScanVan::Cameras cams { config_path };
-		//ScanVan::Cameras cams {};
+    	//ScanVan::Cameras cams { config_path };
+		ScanVan::Cameras cams {};
 		//cams.setDataPath(data_path);
 
 		std::thread thGrabImages(GrabImages, &cams);

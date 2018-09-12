@@ -149,7 +149,9 @@ void Cameras::Init() {
 		cameras[i].PixelFormat.SetValue(PixelFormat_BayerRG8);
 
 		cameras[i].GevSCPSPacketSize.SetValue(8192);
-		cameras[i].GevSCPD.SetValue(50); // Inter-packet delay
+		//cameras[i].GevSCPSPacketSize.SetValue(9000);
+		//cameras[i].GevSCPD.SetValue(50); // Inter-packet delay
+		cameras[i].GevSCPD.SetValue(20); // Inter-packet delay
 		cameras[i].GevSCFTD.SetValue(0); // Frame-transmission delay
 		cameras[i].GevSCBWRA.SetValue(cameras[i].GevSCBWRA.GetMax());
 
@@ -349,6 +351,7 @@ void Cameras::DisplayImages() {
 	if (key == 27) {
 		// if ESC key is pressed signal to exit the program
 		exitProgram = true;
+		imgStorageQueue.push (*imgs);
 	} else if ((key == 83) || (key == 115)) {
 		++imgNum; // increase the image number;
 		imgs->setImgNumber(imgNum);
@@ -360,8 +363,9 @@ void Cameras::StoreImages() {
 
 	std::shared_ptr<PairImages> imgs { };
 	imgs = imgStorageQueue.wait_pop();
-	imgs->savePair(data_path);
-
+	if (exitProgram != true) {
+		imgs->savePair(data_path);
+	}
 }
 
 void Cameras::SaveParameters(){
@@ -492,24 +496,40 @@ void Cameras::LoadCameraConfig() {
 void Cameras::LoadMap() {
 
 	cv::FileStorage file_0_1(path_map_0_1, cv::FileStorage::READ);
-	file_0_1["mat_map1"] >> map_0_1;
-	file_0_1.release();
-	std::cout << "Read " << path_map_0_1 << std::endl;
+	if (file_0_1.isOpened()) {
+		file_0_1["mat_map1"] >> map_0_1;
+		file_0_1.release();
+		std::cout << "Read " << path_map_0_1 << std::endl;
+	} else {
+		throw std::runtime_error("Could not load map_0_1.");
+	}
 
 	cv::FileStorage file_0_2(path_map_0_2, cv::FileStorage::READ);
-	file_0_2["mat_map2"] >> map_0_2;
-	file_0_2.release();
-	std::cout << "Read " << path_map_0_2 << std::endl;
+	if (file_0_2.isOpened()) {
+		file_0_2["mat_map2"] >> map_0_2;
+		file_0_2.release();
+		std::cout << "Read " << path_map_0_2 << std::endl;
+	} else {
+		throw std::runtime_error("Could not load map_0_2.");
+	}
 
 	cv::FileStorage file_1_1(path_map_1_1, cv::FileStorage::READ);
-	file_1_1["mat_map1"] >> map_1_1;
-	file_1_1.release();
-	std::cout << "Read " << path_map_1_1 << std::endl;
+	if (file_1_1.isOpened()) {
+		file_1_1["mat_map1"] >> map_1_1;
+		file_1_1.release();
+		std::cout << "Read " << path_map_1_1 << std::endl;
+	} else {
+		throw std::runtime_error("Could not load map_1_1.");
+	}
 
 	cv::FileStorage file_1_2(path_map_1_2, cv::FileStorage::READ);
-	file_1_2["mat_map2"] >> map_1_2;
-	file_1_2.release();
-	std::cout << "Read " << path_map_1_2 << std::endl;
+	if (file_1_2.isOpened()) {
+		file_1_2["mat_map2"] >> map_1_2;
+		file_1_2.release();
+		std::cout << "Read " << path_map_1_2 << std::endl;
+	} else {
+		throw std::runtime_error("Could not load map_1_2.");
+	}
 
 }
 
