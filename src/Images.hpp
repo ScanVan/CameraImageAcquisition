@@ -30,6 +30,8 @@ namespace ScanVan {
 class Images {
 private:
 	std::vector<uint8_t> * p_img;
+
+protected:
 	size_t height = 3008;
 	size_t width = 3008;
 	size_t cameraIdx = 0;	// camera index
@@ -81,6 +83,7 @@ public:
 	int getAutoGain() { return autoGain; };
 	long int getImgNumber () { return numImages; };
 
+public:
 	void getBuffer (char *p);
 	void copyBuffer (char *p);
 
@@ -93,9 +96,11 @@ public:
 
 	cv::Mat convertToCvMat ();
 
+protected:
 	std::string convertTimeToString (time_t t);
 	time_t convertStringToTime (std::string str);
 
+public:
 	Images & operator=(const Images &a);
 	Images & operator=(Images &&a);
 
