@@ -109,7 +109,7 @@ private:
 public:
 	Cameras();
 	Cameras(std::string path_to_config_files);
-	size_t GetNumCam();
+	size_t GetNumCam() const;
 	void setConfigPath (const std::string path) {
 		config_path = path;
 	}
@@ -118,10 +118,10 @@ public:
 	}
 	void setImgNum (long int n) { imgNum = n; };
 
-	std::string getConfigPath () {
+	std::string getConfigPath () const {
 		return config_path;
 	}
-	std::string getDataPath () {
+	std::string getDataPath () const {
 		return data_path;
 	}
 
@@ -141,9 +141,9 @@ public:
 		return imgDisplayQueue.empty();
 	}
 
-	long int getImgNum () { return imgNum; };
+	long int getImgNum () const { return imgNum; };
 
-	bool getExitStatus () {
+	bool getExitStatus () const {
 		return exitProgram;
 	}
 

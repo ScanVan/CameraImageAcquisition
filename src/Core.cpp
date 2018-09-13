@@ -54,6 +54,9 @@ void GrabImages(ScanVan::Cameras *cams) {
 	// For measuring the grabbing time
 	std::chrono::high_resolution_clock::time_point t1{};
 	std::chrono::high_resolution_clock::time_point t2{};
+	std::chrono::high_resolution_clock::time_point t1_i{};
+	std::chrono::high_resolution_clock::time_point t2_i{};
+
 
 	long int counter { 0 };
 
@@ -62,12 +65,18 @@ void GrabImages(ScanVan::Cameras *cams) {
 
 	while (cams->getExitStatus() == false) {
 
+		t1_i = std::chrono::high_resolution_clock::now();
+
 		cams->GrabImages();
 
-/*
+		t2_i = std::chrono::high_resolution_clock::now();
+
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2_i - t1_i).count();
+		cout << "fps: " << double(1000000) / duration << endl;
+
 		std::cout << "DQueue: " << cams->getDisplayQueueSize() << std::endl;
 		std::cout << "SQueue: " << cams->getStorageQueueSize() << std::endl;
-*/
+
 
 		++counter;
 

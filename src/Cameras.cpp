@@ -203,6 +203,12 @@ void Cameras::Init() {
 		if (autoGainCont)
 			cameras[i].GainAuto.SetValue(GainAuto_Continuous);
 	}
+
+	// Starts grabbing for all cameras.
+	// The cameras won't transmit any image data, because they are configured to wait for an action command.
+
+	cameras.StartGrabbing();
+
 }
 
 
@@ -214,11 +220,14 @@ void Cameras::GrabImages() {
 	//////////////////////////////////////////////////////////////////////
 	cout << endl << "Issuing an action command." << endl;
 
-	// Starts grabbing for all cameras.
-	// The cameras won't transmit any image data, because they are configured to wait for an action command.
-	cameras.StartGrabbing();
 
 	try {
+
+		const int DefaultTimeout_ms { 5000 };
+
+		cameras[0].WaitForFrameTriggerReady(DefaultTimeout_ms, TimeoutHandling_ThrowException);
+		cameras[1].WaitForFrameTriggerReady(DefaultTimeout_ms, TimeoutHandling_ThrowException);
+
 		std::string captureTime = StampTime();
 
 		// Now we issue the action command to all devices in the subnet.
@@ -227,9 +236,6 @@ void Cameras::GrabImages() {
 
 		// This smart pointer will receive the grab result data.
 		CBaslerGigEGrabResultPtr ptrGrabResult { };
-
-		// Retrieve images from all cameras.
-		const int DefaultTimeout_ms { 5000 };
 
 		// Create an Image objects for the grabbed data
 		Images img0 { height, width };
@@ -280,6 +286,8 @@ void Cameras::GrabImages() {
 		ss2 >> tstr2;
 
 		img1.setSerialNumber(tstr2);
+
+		// Retrieve images from all cameras.
 
 		for (size_t i = 0; i < cameras.GetSize() && cameras.IsGrabbing(); ++i) {
 			// CInstantCameraArray::RetrieveResult will return grab results in the order they arrive.
@@ -338,14 +346,13 @@ void Cameras::GrabImages() {
 		cerr << "=============================================================" << endl;
 	}
 
-	cameras.StopGrabbing();
 }
 
 void Cameras::DisplayImages() {
 	int key { };
 	std::shared_ptr<PairImages> imgs { };
 	imgs = imgDisplayQueue.wait_pop();
-	imgs->showPairConcat();
+	//imgs->showPairConcat();
 	imgs->showUndistortPairConcat(map_0_1, map_0_2, map_1_1, map_1_2);
 	key = cv::waitKey(1);
 	if (key == 27) {
@@ -533,7 +540,7 @@ void Cameras::LoadMap() {
 
 }
 
-size_t Cameras::GetNumCam() {
+size_t Cameras::GetNumCam() const {
 	return cameras.GetSize();
 }
 
@@ -553,6 +560,7 @@ std::string Cameras::StampTime() {
 
 Cameras::~Cameras() {
 
+	cameras.StopGrabbing();
 
 	for (size_t i = 0; i < cameras.GetSize(); ++i) {
 		cameras[i].DeviceReset();

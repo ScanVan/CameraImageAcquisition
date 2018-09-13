@@ -69,30 +69,30 @@ public:
 	void setSerialNumber (const std::string &sn) { serialNum = sn; };
 	void setImgNumber (long int n) { numImages = n; };
 
-	size_t getHeight() { return height;};
-	size_t getWidth() { return width;};
-	size_t getCameraIdx() { return cameraIdx; };
-	std::string getCaptureTime() { return captureTimeStr; };
-	double getExposureTime() { return exposureTime; };
-	int64_t getGain() { return gain; };
-	double getBalanceR () { return balanceR; };
-	double getBalanceG () { return balanceG; };
-	double getBalanceB () { return balanceB; };
-	std::string getSerialNumber() { return serialNum; };
-	int getAutoExpTime() { return autoExpTime; };
-	int getAutoGain() { return autoGain; };
-	long int getImgNumber () { return numImages; };
+	size_t getHeight() const { return height;};
+	size_t getWidth() const { return width;};
+	size_t getCameraIdx() const { return cameraIdx; };
+	std::string getCaptureTime() const { return captureTimeStr; };
+	double getExposureTime() const { return exposureTime; };
+	int64_t getGain() const { return gain; };
+	double getBalanceR () const { return balanceR; };
+	double getBalanceG () const { return balanceG; };
+	double getBalanceB () const { return balanceB; };
+	std::string getSerialNumber() const { return serialNum; };
+	int getAutoExpTime() const { return autoExpTime; };
+	int getAutoGain() const { return autoGain; };
+	long int getImgNumber () const { return numImages; };
 
 public:
-	void getBuffer (char *p);
+	void getBuffer (char *p) const;
 	void copyBuffer (char *p);
 
 	void loadImage (std::string path);
 	void saveImage (std::string path);
 	void loadData (std::string path);
 	void saveData (std::string path);
-	void show ();
-	void show (std::string name);
+	void show () const;
+	void show (std::string name) const;
 
 	cv::Mat convertToCvMat ();
 

@@ -81,7 +81,7 @@ Images::Images(Images &&img) {
 	autoGain = img.autoGain;
 }
 
-void Images::getBuffer(char *p) {
+void Images::getBuffer(char *p) const{
 // copies the image stored in the object's buffer to the buffer passed by the pointer p
 	memcpy(p, p_img->data(), width*height);
 }
@@ -309,7 +309,7 @@ void Images::saveData(std::string path) {
 	}
 }
 
-void Images::show() {
+void Images::show() const {
 // It shows the image in an opencv window with the title "Image"
 	cv::Mat openCvImageRG8 = cv::Mat(height, width, CV_8UC1, p_img->data());
 	cv::Mat openCvImage;
@@ -328,7 +328,7 @@ cv::Mat Images::convertToCvMat () {
 	return openCvImage;
 }
 
-void Images::show (std::string name) {
+void Images::show (std::string name) const {
 // shows the image in an opencv window with the name provided as parameter
 	cv::Mat openCvImageRG8 = cv::Mat(height, width, CV_8UC1, p_img->data());
 	cv::Mat openCvImage;
