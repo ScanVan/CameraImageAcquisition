@@ -90,7 +90,7 @@ void GrabImages(ScanVan::Cameras *cams) {
 		t2_i = std::chrono::high_resolution_clock::now();
 
 		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2_i - t1_i).count();
-		cout << "fps: " << double(1000000) / duration << endl;
+		cout << "Grabbing FPS: " << double(1000000) / duration << endl;
 
 		std::cout << "DQueue: " << cams->getDisplayQueueSize() << std::endl;
 		std::cout << "SQueue: " << cams->getStorageQueueSize() << std::endl;
@@ -104,7 +104,7 @@ void GrabImages(ScanVan::Cameras *cams) {
 
 	// Measure duration of grabbing
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-	cout << "fps: " << double(1000000) * counter / duration << endl;
+	cout << "Average Gragging FPS: " << double(1000000) * counter / duration << endl;
 
 }
 

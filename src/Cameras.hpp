@@ -35,6 +35,17 @@
 
 namespace ScanVan {
 
+struct ImagePropAtTrigger {
+	// properties of the cameras at exposure time
+	// sub-index indicates sorted camera index
+	double exposureTime_0, exposureTime_1; 	// exposure time
+	int64_t gain_0, gain_1;					// gain
+	double balanceR_0, balanceR_1;			// white balance R
+	double balanceG_0, balanceG_1;			// white balance G
+	double balanceB_0, balanceB_1;			// white balance B
+	std::string captureTime;
+};
+
 class Cameras {
 private:
 	Pylon::IGigETransportLayer *pTL{};
@@ -100,7 +111,7 @@ private:
 
 	thread_safe_queue<PairImages> imgStorageQueue {}; // The queue where the pair of images are stored for storage.
 	thread_safe_queue<PairImages> imgDisplayQueue {}; // The queue where the pair of images are stored for display.
-	thread_safe_queue<std::string> triggerQueue {}; // The queue where the time stamps are stored and signals the grabbing procedure
+	thread_safe_queue<ImagePropAtTrigger> triggerQueue {}; // The queue where the time stamps are stored and signals the grabbing procedure
 
 	long int imgNum = 0; // Counts the number of images grabbed from the camera
 
