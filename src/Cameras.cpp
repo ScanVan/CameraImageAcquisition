@@ -150,8 +150,8 @@ void Cameras::Init() {
 
 		cameras[i].GevSCPSPacketSize.SetValue(8192);
 		//cameras[i].GevSCPSPacketSize.SetValue(9000);
-		//cameras[i].GevSCPD.SetValue(50); // Inter-packet delay
-		cameras[i].GevSCPD.SetValue(20); // Inter-packet delay
+		cameras[i].GevSCPD.SetValue(50); // Inter-packet delay
+		//cameras[i].GevSCPD.SetValue(20); // Inter-packet delay
 		cameras[i].GevSCFTD.SetValue(0); // Frame-transmission delay
 		cameras[i].GevSCBWRA.SetValue(cameras[i].GevSCBWRA.GetMax());
 
@@ -211,15 +211,13 @@ void Cameras::Init() {
 
 }
 
-
-void Cameras::GrabImages() {
+void Cameras::IssueActionCommand() {
 	//////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////
 	// Use an Action Command to Trigger Multiple Cameras at the Same Time.
 	//////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////
 	cout << endl << "Issuing an action command." << endl;
-
 
 	try {
 
@@ -233,6 +231,33 @@ void Cameras::GrabImages() {
 		// Now we issue the action command to all devices in the subnet.
 		// The devices with a matching DeviceKey, GroupKey and valid GroupMask will grab an image.
 		pTL->IssueActionCommand(DeviceKey, GroupKey, AllGroupMask, subnet);
+
+		// If the action command is successful push the time stamp for retrieving the image
+		triggerQueue.push ( captureTime );
+
+	} catch (const GenericException &e) {
+		// Error handling
+		cerr << "=============================================================" << endl;
+		cerr << "An exception occurred." << endl << e.GetDescription() << endl;
+		cerr << "=============================================================" << endl;
+	} catch (const std::exception &e) {
+		cerr << "=============================================================" << endl;
+		cerr << "An exception occurred." << endl << e.what() << endl;
+		cerr << "=============================================================" << endl;
+	}
+
+}
+
+void Cameras::GrabImages() {
+
+
+	try {
+
+		std::shared_ptr<std::string> timeStamp { };
+		timeStamp= triggerQueue.wait_pop();
+		std::string captureTime = *timeStamp;
+
+		const int DefaultTimeout_ms { 5000 };
 
 		// This smart pointer will receive the grab result data.
 		CBaslerGigEGrabResultPtr ptrGrabResult { };
@@ -544,16 +569,17 @@ size_t Cameras::GetNumCam() const {
 	return cameras.GetSize();
 }
 
-std::string Cameras::StampTime() {
+inline std::string Cameras::StampTime() {
 	timeval curTime{};
 	gettimeofday(&curTime, nullptr);
 	long int milli { curTime.tv_usec / 1000 };
+	long int micro { curTime.tv_usec % 1000 };
 
 	char buffer [80] {};
 	strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
 
 	char currentTime[84] = "";
-	sprintf(currentTime, "%s:%d", buffer, static_cast<int> (milli));
+	sprintf(currentTime, "%s:%d:%d", buffer, static_cast<int> (milli), static_cast<int> (micro));
 	std::string myTime {currentTime};
 	return myTime;
 }

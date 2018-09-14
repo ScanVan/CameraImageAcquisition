@@ -49,6 +49,24 @@ std::string GetCurrentWorkingDir( void ) {
 	return current_working_dir;
 }
 
+void IssueTrigger (ScanVan::Cameras *cams) {
+
+	std::chrono::system_clock::time_point PreviousStartTime { std::chrono::system_clock::now() };
+	const std::chrono::microseconds intervalPeriodMicros { static_cast<int>(1 / (cams->getFps()) * 1000000) };
+
+	std::chrono::system_clock::time_point nextStartTime { };
+
+	while (cams->getExitStatus() == false) {
+		// Setup timer
+		nextStartTime = PreviousStartTime + intervalPeriodMicros;
+		std::this_thread::sleep_until(nextStartTime);
+
+		PreviousStartTime = std::chrono::system_clock::now();
+
+		cams->IssueActionCommand();
+	}
+}
+
 void GrabImages(ScanVan::Cameras *cams) {
 
 	// For measuring the grabbing time
@@ -56,7 +74,6 @@ void GrabImages(ScanVan::Cameras *cams) {
 	std::chrono::high_resolution_clock::time_point t2{};
 	std::chrono::high_resolution_clock::time_point t1_i{};
 	std::chrono::high_resolution_clock::time_point t2_i{};
-
 
 	long int counter { 0 };
 
@@ -67,6 +84,7 @@ void GrabImages(ScanVan::Cameras *cams) {
 
 		t1_i = std::chrono::high_resolution_clock::now();
 
+		// Grab images
 		cams->GrabImages();
 
 		t2_i = std::chrono::high_resolution_clock::now();
@@ -76,7 +94,6 @@ void GrabImages(ScanVan::Cameras *cams) {
 
 		std::cout << "DQueue: " << cams->getDisplayQueueSize() << std::endl;
 		std::cout << "SQueue: " << cams->getStorageQueueSize() << std::endl;
-
 
 		++counter;
 
@@ -88,7 +105,6 @@ void GrabImages(ScanVan::Cameras *cams) {
 	// Measure duration of grabbing
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 	cout << "fps: " << double(1000000) * counter / duration << endl;
-
 
 }
 
@@ -133,10 +149,12 @@ int main(int argc, char* argv[])
 		ScanVan::Cameras cams {};
 		//cams.setDataPath(data_path);
 
+		std::thread thIssueActionCommand(IssueTrigger, &cams);
 		std::thread thGrabImages(GrabImages, &cams);
 		std::thread thDisplayImages(DisplayImages, &cams);
 		std::thread thStoreImages(StoreImages, &cams);
 
+		thIssueActionCommand.join();
 		thGrabImages.join();
 		thDisplayImages.join();
 		thStoreImages.join();

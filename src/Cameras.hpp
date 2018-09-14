@@ -31,6 +31,7 @@
 #include <atomic>
 
 #include <sys/time.h>
+#include <chrono>
 
 namespace ScanVan {
 
@@ -99,12 +100,15 @@ private:
 
 	thread_safe_queue<PairImages> imgStorageQueue {}; // The queue where the pair of images are stored for storage.
 	thread_safe_queue<PairImages> imgDisplayQueue {}; // The queue where the pair of images are stored for display.
+	thread_safe_queue<std::string> triggerQueue {}; // The queue where the time stamps are stored and signals the grabbing procedure
 
 	long int imgNum = 0; // Counts the number of images grabbed from the camera
 
 	std::atomic<bool> exitProgram = false;
 
 	void Init();
+
+	double fps = 4.0; // Desired frame rate
 
 public:
 	Cameras();
@@ -117,6 +121,8 @@ public:
 		data_path = path;
 	}
 	void setImgNum (long int n) { imgNum = n; };
+
+	inline double getFps() const { return fps; }
 
 	std::string getConfigPath () const {
 		return config_path;
@@ -147,6 +153,7 @@ public:
 		return exitProgram;
 	}
 
+	void IssueActionCommand();
 	void GrabImages();
 	void StoreImages();
 	void DisplayImages();
