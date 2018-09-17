@@ -223,55 +223,17 @@ void Cameras::IssueActionCommand() {
 
 		const int DefaultTimeout_ms { 5000 };
 
-		ImagePropAtTrigger imgProp{};
-
 		cameras[0].WaitForFrameTriggerReady(DefaultTimeout_ms, TimeoutHandling_ThrowException);
 		cameras[1].WaitForFrameTriggerReady(DefaultTimeout_ms, TimeoutHandling_ThrowException);
 
-		imgProp.exposureTime_0 = cameras[sortedCameraIdx[0]].ExposureTimeAbs.GetValue();
-		imgProp.exposureTime_1 = cameras[sortedCameraIdx[1]].ExposureTimeAbs.GetValue();
-
-		imgProp.gain_0 = cameras[sortedCameraIdx[0]].GainRaw.GetValue();
-		imgProp.gain_1 = cameras[sortedCameraIdx[1]].GainRaw.GetValue();
-
-		cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
-		imgProp.balanceR_0 = cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue();
-		cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
-		imgProp.balanceG_0 = cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue();
-		cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
-		imgProp.balanceB_0 = cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue();
-
-		cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
-		imgProp.balanceR_1 = cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue();
-		cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
-		imgProp.balanceG_1 = cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue();
-		cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
-		imgProp.balanceB_1 = cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue();
-
-/*
-		imgProp.exposureTime_0 = 0;
-		imgProp.exposureTime_1 = 0;
-
-		imgProp.gain_0 = 0;
-		imgProp.gain_1 = 0;
-
-		imgProp.balanceR_0 = 0;
-		imgProp.balanceG_0 = 0;
-		imgProp.balanceB_0 = 0;
-
-		imgProp.balanceR_1 = 0;
-		imgProp.balanceG_1 = 0;
-		imgProp.balanceB_1 = 0;
-*/
-
-		imgProp.captureTime = StampTime();
+		std::string captureTime = StampTime();
 
 		// Now we issue the action command to all devices in the subnet.
 		// The devices with a matching DeviceKey, GroupKey and valid GroupMask will grab an image.
 		pTL->IssueActionCommand(DeviceKey, GroupKey, AllGroupMask, subnet);
 
 		// If the action command is successful push the time stamp for retrieving the image
-		triggerQueue.push ( imgProp );
+		triggerQueue.push ( captureTime );
 
 	} catch (const GenericException &e) {
 		// Error handling
@@ -291,10 +253,9 @@ void Cameras::GrabImages() {
 
 	try {
 
-		std::shared_ptr<ImagePropAtTrigger> imgProp { };
-		imgProp = triggerQueue.wait_pop();
-
-		std::string captureTime = imgProp->captureTime;
+		std::shared_ptr<std::string> timeStamp { };
+		timeStamp= triggerQueue.wait_pop();
+		std::string captureTime = *timeStamp;
 
 		const int DefaultTimeout_ms { 5000 };
 
@@ -311,19 +272,25 @@ void Cameras::GrabImages() {
 		img0.setCaptureTime(captureTime);
 		img1.setCaptureTime(captureTime);
 
-		img0.setExposureTime(imgProp->exposureTime_0);
-		img1.setExposureTime(imgProp->exposureTime_1);
+		img0.setExposureTime(cameras[sortedCameraIdx[0]].ExposureTimeAbs.GetValue());
+		img1.setExposureTime(cameras[sortedCameraIdx[1]].ExposureTimeAbs.GetValue());
 
-		img0.setGain(imgProp->gain_0);
-		img1.setGain(imgProp->gain_1);
+		img0.setGain(cameras[sortedCameraIdx[0]].GainRaw.GetValue());
+		img1.setGain(cameras[sortedCameraIdx[1]].GainRaw.GetValue());
 
-		img0.setBalanceR(imgProp->balanceR_0);
-		img0.setBalanceG(imgProp->balanceG_0);
-		img0.setBalanceB(imgProp->balanceB_0);
+		cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
+		img0.setBalanceR(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+		cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
+		img0.setBalanceG(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+		cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
+		img0.setBalanceB(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
 
-		img1.setBalanceR(imgProp->balanceR_1);
-		img1.setBalanceG(imgProp->balanceG_1);
-		img1.setBalanceB(imgProp->balanceB_1);
+		cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
+		img1.setBalanceR(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+		cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
+		img1.setBalanceG(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+		cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
+		img1.setBalanceB(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
 
 		img0.setAutoExpTime(static_cast<int>(autoExpTimeCont));
 		img1.setAutoExpTime(static_cast<int>(autoExpTimeCont));
