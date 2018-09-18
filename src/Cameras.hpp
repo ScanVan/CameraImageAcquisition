@@ -104,7 +104,7 @@ private:
 
 	long int imgNum = 0; // Counts the number of images grabbed from the camera
 
-	std::atomic<bool> exitProgram = false;
+	std::atomic<bool> exitProgram { false } ;
 
 	void Init();
 

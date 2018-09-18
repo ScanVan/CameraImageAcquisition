@@ -129,7 +129,6 @@ void DisplayImages(ScanVan::Cameras *cams) {
 	while (cams->imgDisplayQueueEmpty() == false) {
 		cams->DisplayImages();
 	}
-
 }
 
 int main(int argc, char* argv[])
@@ -151,14 +150,17 @@ int main(int argc, char* argv[])
 
 		std::thread thIssueActionCommand(IssueTrigger, &cams);
 		std::thread thGrabImages(GrabImages, &cams);
-		std::thread thDisplayImages(DisplayImages, &cams);
+		//std::thread thDisplayImages(DisplayImages, &cams);
 		std::thread thStoreImages(StoreImages, &cams);
+		DisplayImages (&cams);
+
 
 		thIssueActionCommand.join();
 		thGrabImages.join();
-		thDisplayImages.join();
+		//thDisplayImages.join();
 		thStoreImages.join();
 
+		cv::destroyAllWindows();
 		//cams.SaveParameters();
 
 	} catch (const GenericException &e) {

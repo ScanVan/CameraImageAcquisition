@@ -223,9 +223,6 @@ void Cameras::IssueActionCommand() {
 
 		const int DefaultTimeout_ms { 5000 };
 
-		cameras[0].WaitForFrameTriggerReady(DefaultTimeout_ms, TimeoutHandling_ThrowException);
-		cameras[1].WaitForFrameTriggerReady(DefaultTimeout_ms, TimeoutHandling_ThrowException);
-
 		std::string captureTime = StampTime();
 
 		// Now we issue the action command to all devices in the subnet.
@@ -234,6 +231,9 @@ void Cameras::IssueActionCommand() {
 
 		// If the action command is successful push the time stamp for retrieving the image
 		triggerQueue.push ( captureTime );
+
+//		cameras[0].WaitForFrameTriggerReady(DefaultTimeout_ms, TimeoutHandling_ThrowException);
+//		cameras[1].WaitForFrameTriggerReady(DefaultTimeout_ms, TimeoutHandling_ThrowException);
 
 	} catch (const GenericException &e) {
 		// Error handling
@@ -380,11 +380,13 @@ void Cameras::DisplayImages() {
 	//imgs->showPairConcat();
 	imgs->showUndistortPairConcat(map_0_1, map_0_2, map_1_1, map_1_2);
 	key = cv::waitKey(1);
+
 	if (key == 27) {
 		// if ESC key is pressed signal to exit the program
 		exitProgram = true;
 		imgStorageQueue.push (*imgs);
-	} else if ((key == 83) || (key == 115)) {
+	} else {
+		//if ((key == 83) || (key == 115)) {
 		++imgNum; // increase the image number;
 		imgs->setImgNumber(imgNum);
 		imgStorageQueue.push (*imgs);

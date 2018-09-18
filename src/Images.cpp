@@ -266,18 +266,18 @@ void Images::saveData(std::string path) {
 
 	ss1 << path;
 	ss1 << "img_";
-	ss1 << numImages;
-	ss1 << "_";
 	ss1 << cameraIdx;
+	ss1 << "_";
+	ss1 << numImages;
 	ss1 << ".raw";
 
 	std::stringstream ss2 { };
 
 	ss2 << path;
 	ss2 << "img_";
-	ss2 << numImages;
-	ss2 << "_";
 	ss2 << cameraIdx;
+	ss2 << "_";
+	ss2 << numImages;
 	ss2 << ".txt";
 
 	std::string path_raw;
