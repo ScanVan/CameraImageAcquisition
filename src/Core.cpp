@@ -49,6 +49,7 @@ std::string GetCurrentWorkingDir( void ) {
 	return current_working_dir;
 }
 
+
 void IssueTrigger (ScanVan::Cameras *cams) {
 
 	std::chrono::system_clock::time_point PreviousStartTime { std::chrono::system_clock::now() };
@@ -150,14 +151,11 @@ int main(int argc, char* argv[])
 
 		std::thread thIssueActionCommand(IssueTrigger, &cams);
 		std::thread thGrabImages(GrabImages, &cams);
-		//std::thread thDisplayImages(DisplayImages, &cams);
 		std::thread thStoreImages(StoreImages, &cams);
 		DisplayImages (&cams);
 
-
 		thIssueActionCommand.join();
 		thGrabImages.join();
-		//thDisplayImages.join();
 		thStoreImages.join();
 
 		cv::destroyAllWindows();

@@ -109,6 +109,7 @@ private:
 	void Init();
 
 	double fps = 4.0; // Desired frame rate
+	bool startSaving = false;
 
 public:
 	Cameras();

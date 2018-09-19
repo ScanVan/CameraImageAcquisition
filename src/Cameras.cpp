@@ -221,7 +221,7 @@ void Cameras::IssueActionCommand() {
 
 	try {
 
-		const int DefaultTimeout_ms { 5000 };
+//		const int DefaultTimeout_ms { 5000 };
 
 		std::string captureTime = StampTime();
 
@@ -385,11 +385,11 @@ void Cameras::DisplayImages() {
 		// if ESC key is pressed signal to exit the program
 		exitProgram = true;
 		imgStorageQueue.push (*imgs);
-	} else {
-		//if ((key == 83) || (key == 115)) {
+	} else if ((key == 83) || (key == 115) || startSaving) {
 		++imgNum; // increase the image number;
 		imgs->setImgNumber(imgNum);
 		imgStorageQueue.push (*imgs);
+		startSaving = true;
 	}
 }
 
