@@ -149,15 +149,24 @@ int main(int argc, char* argv[])
 		ScanVan::Cameras cams {};
 		//cams.setDataPath(data_path);
 
-		std::thread thIssueActionCommand(IssueTrigger, &cams);
-		std::thread thGrabImages(GrabImages, &cams);
-		std::thread thStoreImages(StoreImages, &cams);
-		DisplayImages (&cams);
+		if (cams.getUseExternalTrigger() == false) {
+			std::thread thIssueActionCommand(IssueTrigger, &cams);
+			std::thread thGrabImages(GrabImages, &cams);
+			std::thread thStoreImages(StoreImages, &cams);
+			DisplayImages(&cams);
 
-		thIssueActionCommand.join();
-		thGrabImages.join();
-		thStoreImages.join();
+			thIssueActionCommand.join();
+			thGrabImages.join();
+			thStoreImages.join();
 
+		} else {
+			std::thread thGrabImages(GrabImages, &cams);
+			std::thread thStoreImages(StoreImages, &cams);
+			DisplayImages(&cams);
+
+			thGrabImages.join();
+			thStoreImages.join();
+		}
 		cv::destroyAllWindows();
 		//cams.SaveParameters();
 

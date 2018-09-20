@@ -410,6 +410,7 @@ Images & Images::operator=(const Images &a) {
 		balanceB = a.balanceB;
 		autoExpTime = a.autoExpTime;
 		autoGain = a.autoGain;
+		serialNum = a.serialNum;
 	}
 	return *this;
 }
@@ -429,6 +430,7 @@ Images & Images::operator=(Images &&a) {
 		balanceB = a.balanceB;
 		autoExpTime = a.autoExpTime;
 		autoGain = a.autoGain;
+		serialNum = a.serialNum;
 	}
 	return *this;
 }

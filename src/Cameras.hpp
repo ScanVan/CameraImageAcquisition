@@ -89,10 +89,16 @@ private:
 
 	std::string data_path = {"./data/"}; // default location where the images will be stored.
 
-	std::string path_map_0_1 = { "./config/map_0_1.xml" }; // path to the map1.xml of the calibration of the camera 0
-	std::string path_map_0_2 = { "./config/map_0_2.xml" }; // path to the map2.xml of the calibration of the camera 0
-	std::string path_map_1_1 = { "./config/map_1_1.xml" }; // path to the map1.xml of the calibration of the camera 1
-	std::string path_map_1_2 = { "./config/map_1_2.xml" }; // path to the map2.xml of the calibration of the camera 1
+	std::string path_cal = {"./config/" }; // path to calibration directory
+	// From the path_cal we expect the following sub-directory structure
+	// path_cal
+	//    |- calibration_40008603
+	//               |- map1.xml
+	//               |- map2.xml
+	//    |- calibration_40009302
+	//               |- map1.xml
+	//               |- map2.xml
+
 	cv::Mat map_0_1;
 	cv::Mat map_0_2;
 	cv::Mat map_1_1;
@@ -102,14 +108,16 @@ private:
 	thread_safe_queue<PairImages> imgDisplayQueue {}; // The queue where the pair of images are stored for display.
 	thread_safe_queue<std::string> triggerQueue {}; // The queue where the time stamps are stored and signals the grabbing procedure
 
-	long int imgNum = 0; // Counts the number of images grabbed from the camera
+	long int imgNum { 0 }; // Counts the number of images grabbed from the camera
 
 	std::atomic<bool> exitProgram { false } ;
 
 	void Init();
 
 	double fps = 4.0; // Desired frame rate
-	bool startSaving = false;
+	bool startSaving { false };
+
+	bool useExternalTrigger { true }; // If true it configures the program to use the external trigger in line 1
 
 public:
 	Cameras();
@@ -122,6 +130,10 @@ public:
 		data_path = path;
 	}
 	void setImgNum (long int n) { imgNum = n; };
+
+	void setUseExternalTrigger (bool val) { useExternalTrigger = val; };
+
+	bool getUseExternalTrigger () const { return useExternalTrigger; };
 
 	inline double getFps() const { return fps; }
 

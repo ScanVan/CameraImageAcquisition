@@ -27,8 +27,8 @@ Cameras::Cameras() {
 	loadParam = false;
 	// Loads the camera parameters from the file genparam.cfg under the config folder
 	LoadCameraConfig();
-	LoadMap();
 	Init();
+	LoadMap();
 }
 
 Cameras::Cameras(std::string path_to_config_files): config_path { path_to_config_files } {
@@ -38,8 +38,8 @@ Cameras::Cameras(std::string path_to_config_files): config_path { path_to_config
 	loadParam = true;
 	// Loads the camera parameters from the file genparam.cfg under the config folder
 	LoadCameraConfig();
-	LoadMap();
 	Init();
+	LoadMap();
 }
 
 void Cameras::Init() {
@@ -77,8 +77,11 @@ void Cameras::Init() {
 	}
 
 	// Check if all the cameras have been detected
-	if (usableDeviceInfos.size() != c_maxCamerasToUse) {
-		throw std::runtime_error("Not all the cameras have been detected!");
+	if (usableDeviceInfos.size() > c_maxCamerasToUse) {
+		throw std::runtime_error("More than maxCamerasToUse cameras detected!");
+	}
+	if (usableDeviceInfos.size() > c_maxCamerasToUse) {
+		std::cerr << "Not all the cameras have been detected!" << std::endl;
 	}
 
 	cameras.Initialize(usableDeviceInfos.size());
@@ -104,8 +107,10 @@ void Cameras::Init() {
 	for (size_t i = 0; i < cameras.GetSize(); ++i) {
 		cameras[i].Attach(tlFactory.CreateDevice(usableDeviceInfos[i]));
 		// We'll use the CActionTriggerConfiguration, which will set up the cameras to wait for an action command.
-		cameras[i].RegisterConfiguration(new CActionTriggerConfiguration { DeviceKey, GroupKey, AllGroupMask }, RegistrationMode_Append,
-				Cleanup_Delete);
+		if (useExternalTrigger == false) {
+			cameras[i].RegisterConfiguration(new CActionTriggerConfiguration { DeviceKey, GroupKey, AllGroupMask }, RegistrationMode_Append,
+					Cleanup_Delete);
+		}
 		// Set the context. This will help us later to correlate the grab result to a camera in the array.
 		cameras[i].SetCameraContext(i);
 
@@ -165,17 +170,23 @@ void Cameras::Init() {
 		cameras[i].Height.SetValue(100);
 	}
 
-	if (IsWritable(cameras[sortedCameraIdx[0]].OffsetX)) {
-		cameras[sortedCameraIdx[0]].OffsetX.SetValue(offsetX_0);
-	}
-	if (IsWritable(cameras[sortedCameraIdx[1]].OffsetX)) {
-		cameras[sortedCameraIdx[1]].OffsetX.SetValue(offsetX_1);
-	}
-	if (IsWritable(cameras[sortedCameraIdx[0]].OffsetY)) {
-		cameras[sortedCameraIdx[0]].OffsetY.SetValue(offsetY_0);
-	}
-	if (IsWritable(cameras[sortedCameraIdx[1]].OffsetY)) {
-		cameras[sortedCameraIdx[1]].OffsetY.SetValue(offsetY_1);
+	for (size_t i = 0; i < cameras.GetSize(); ++i) {
+		if (i == 0) {
+			if (IsWritable(cameras[sortedCameraIdx[0]].OffsetX)) {
+				cameras[sortedCameraIdx[0]].OffsetX.SetValue(offsetX_0);
+			}
+			if (IsWritable(cameras[sortedCameraIdx[0]].OffsetY)) {
+				cameras[sortedCameraIdx[0]].OffsetY.SetValue(offsetY_0);
+			}
+		} else if (i == 1) {
+			if (IsWritable(cameras[sortedCameraIdx[1]].OffsetX)) {
+				cameras[sortedCameraIdx[1]].OffsetX.SetValue(offsetX_1);
+			}
+
+			if (IsWritable(cameras[sortedCameraIdx[1]].OffsetY)) {
+				cameras[sortedCameraIdx[1]].OffsetY.SetValue(offsetY_1);
+			}
+		}
 	}
 
 	for (size_t i = 0; i < cameras.GetSize(); ++i) {
@@ -188,10 +199,15 @@ void Cameras::Init() {
 		cameras[i].AutoFunctionAOIHeight.SetValue(aoi_height);
 	}
 
-	cameras[sortedCameraIdx[0]].AutoFunctionAOIOffsetX.SetValue(aoi_offsetX_0);
-	cameras[sortedCameraIdx[1]].AutoFunctionAOIOffsetX.SetValue(aoi_offsetX_1);
-	cameras[sortedCameraIdx[0]].AutoFunctionAOIOffsetY.SetValue(aoi_offsetY_0);
-	cameras[sortedCameraIdx[1]].AutoFunctionAOIOffsetY.SetValue(aoi_offsetY_1);
+	for (size_t i = 0; i < cameras.GetSize(); ++i) {
+		if (i == 0) {
+			cameras[sortedCameraIdx[0]].AutoFunctionAOIOffsetX.SetValue(aoi_offsetX_0);
+			cameras[sortedCameraIdx[0]].AutoFunctionAOIOffsetY.SetValue(aoi_offsetY_0);
+		} else if (i == 1) {
+			cameras[sortedCameraIdx[1]].AutoFunctionAOIOffsetX.SetValue(aoi_offsetX_1);
+			cameras[sortedCameraIdx[1]].AutoFunctionAOIOffsetY.SetValue(aoi_offsetY_1);
+		}
+	}
 
 	for (size_t i = 0; i < cameras.GetSize(); ++i) {
 
@@ -204,6 +220,16 @@ void Cameras::Init() {
 			cameras[i].GainAuto.SetValue(GainAuto_Continuous);
 	}
 
+	if (useExternalTrigger == true) {
+		// Configuration for external trigger
+		for (size_t i = 0; i < cameras.GetSize(); ++i) {
+			cameras[i].AcquisitionMode.SetValue(AcquisitionMode_Continuous);
+			cameras[i].TriggerSelector.SetValue(TriggerSelector_AcquisitionStart);
+			cameras[i].TriggerMode.SetValue(TriggerMode_On);
+			cameras[i].TriggerSource.SetValue(TriggerSource_Line1);
+			cameras[i].TriggerActivation.SetValue(TriggerActivation_RisingEdge);
+		}
+	}
 	// Starts grabbing for all cameras.
 	// The cameras won't transmit any image data, because they are configured to wait for an action command.
 
@@ -253,9 +279,15 @@ void Cameras::GrabImages() {
 
 	try {
 
-		std::shared_ptr<std::string> timeStamp { };
-		timeStamp= triggerQueue.wait_pop();
-		std::string captureTime = *timeStamp;
+		std::string captureTime {};
+
+		if (useExternalTrigger == false) {
+			std::shared_ptr<std::string> timeStamp { };
+			timeStamp = triggerQueue.wait_pop();
+			captureTime = *timeStamp;
+		} else {
+			captureTime = StampTime();
+		}
 
 		const int DefaultTimeout_ms { 5000 };
 
@@ -263,54 +295,48 @@ void Cameras::GrabImages() {
 		CBaslerGigEGrabResultPtr ptrGrabResult { };
 
 		// Create an Image objects for the grabbed data
-		Images img0 { height, width };
-		Images img1 { height, width };
+		Images img0 {};
+		Images img1 {};
 
-		img0.setCameraIdx(0);
-		img1.setCameraIdx(1);
+		if (cameras.GetSize() >= 1) {
+			img0.setCameraIdx(0);
+			img0.setCaptureTime(captureTime);
+			img0.setExposureTime(cameras[sortedCameraIdx[0]].ExposureTimeAbs.GetValue());
+			img0.setGain(cameras[sortedCameraIdx[0]].GainRaw.GetValue());
+			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
+			img0.setBalanceR(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
+			img0.setBalanceG(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
+			img0.setBalanceB(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+			img0.setAutoExpTime(static_cast<int>(autoExpTimeCont));
+			img0.setAutoGain(static_cast<int>(autoGainCont));
+			std::stringstream ss1 { };
+			std::string tstr1 { };
+			ss1 << cameras[sortedCameraIdx[0]].GetDeviceInfo().GetSerialNumber().c_str();
+			ss1 >> tstr1;
+			img0.setSerialNumber(tstr1);
+		}
 
-		img0.setCaptureTime(captureTime);
-		img1.setCaptureTime(captureTime);
-
-		img0.setExposureTime(cameras[sortedCameraIdx[0]].ExposureTimeAbs.GetValue());
-		img1.setExposureTime(cameras[sortedCameraIdx[1]].ExposureTimeAbs.GetValue());
-
-		img0.setGain(cameras[sortedCameraIdx[0]].GainRaw.GetValue());
-		img1.setGain(cameras[sortedCameraIdx[1]].GainRaw.GetValue());
-
-		cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
-		img0.setBalanceR(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
-		cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
-		img0.setBalanceG(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
-		cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
-		img0.setBalanceB(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
-
-		cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
-		img1.setBalanceR(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
-		cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
-		img1.setBalanceG(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
-		cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
-		img1.setBalanceB(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
-
-		img0.setAutoExpTime(static_cast<int>(autoExpTimeCont));
-		img1.setAutoExpTime(static_cast<int>(autoExpTimeCont));
-
-		img0.setAutoGain(static_cast<int>(autoGainCont));
-		img1.setAutoGain(static_cast<int>(autoGainCont));
-
-		std::stringstream ss1 { };
-		std::string tstr1 { };
-		ss1 << cameras[sortedCameraIdx[0]].GetDeviceInfo().GetSerialNumber().c_str();
-		ss1 >> tstr1;
-
-		img0.setSerialNumber(tstr1);
-
-		std::stringstream ss2 { };
-		std::string tstr2 { };
-		ss2 << cameras[sortedCameraIdx[1]].GetDeviceInfo().GetSerialNumber().c_str();
-		ss2 >> tstr2;
-
-		img1.setSerialNumber(tstr2);
+		if (cameras.GetSize() == 2) {
+			img1.setCameraIdx(1);
+			img1.setCaptureTime(captureTime);
+			img1.setExposureTime(cameras[sortedCameraIdx[1]].ExposureTimeAbs.GetValue());
+			img1.setGain(cameras[sortedCameraIdx[1]].GainRaw.GetValue());
+			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
+			img1.setBalanceR(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
+			img1.setBalanceG(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
+			img1.setBalanceB(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+			img1.setAutoExpTime(static_cast<int>(autoExpTimeCont));
+			img1.setAutoGain(static_cast<int>(autoGainCont));
+			std::stringstream ss2 { };
+			std::string tstr2 { };
+			ss2 << cameras[sortedCameraIdx[1]].GetDeviceInfo().GetSerialNumber().c_str();
+			ss2 >> tstr2;
+			img1.setSerialNumber(tstr2);
+		}
 
 		// Retrieve images from all cameras.
 
@@ -351,8 +377,12 @@ void Cameras::GrabImages() {
 			}
 		}
 
-		PairImages imgs2store { std::move(img0), std::move(img1) };
+		if (cameras.GetSize() == 1) {
+		// If there is only one camera present, replicate the second image with the first image
+			img1 = img0;
+		}
 
+		PairImages imgs2store { std::move(img0), std::move(img1) };
 		imgDisplayQueue.push(imgs2store);
 
 		// In case you want to trigger again you should wait for the camera
@@ -378,6 +408,7 @@ void Cameras::DisplayImages() {
 	std::shared_ptr<PairImages> imgs { };
 	imgs = imgDisplayQueue.wait_pop();
 	//imgs->showPairConcat();
+
 	imgs->showUndistortPairConcat(map_0_1, map_0_2, map_1_1, map_1_2);
 	key = cv::waitKey(1);
 
@@ -492,32 +523,8 @@ void Cameras::LoadCameraConfig() {
 		ss.str(std::string());
 		ss.clear();
 		ss << token;
-		ss >> path_map_0_1;
-		std::cout << "Path to map1.xml of camera 0: " << path_map_0_1 << std::endl;
-
-		getline(myFile, line);
-		token = line.substr(line.find_last_of(":") + 1);
-		ss.str(std::string());
-		ss.clear();
-		ss << token;
-		ss >> path_map_0_2;
-		std::cout << "Path to map2.xml of camera 0: " << path_map_0_2 << std::endl;
-
-		getline(myFile, line);
-		token = line.substr(line.find_last_of(":") + 1);
-		ss.str(std::string());
-		ss.clear();
-		ss << token;
-		ss >> path_map_1_1;
-		std::cout << "Path to map1.xml of camera 1: " << path_map_1_1 << std::endl;
-
-		getline(myFile, line);
-		token = line.substr(line.find_last_of(":") + 1);
-		ss.str(std::string());
-		ss.clear();
-		ss << token;
-		ss >> path_map_1_2;
-		std::cout << "Path to map2.xml of camera 1: " << path_map_1_2 << std::endl;
+		ss >> path_cal;
+		std::cout << "Path to calibration directory: " << path_cal << std::endl;
 
 		myFile.close();
 
@@ -529,40 +536,84 @@ void Cameras::LoadCameraConfig() {
 
 void Cameras::LoadMap() {
 
-	cv::FileStorage file_0_1(path_map_0_1, cv::FileStorage::READ);
-	if (file_0_1.isOpened()) {
-		file_0_1["mat_map1"] >> map_0_1;
-		file_0_1.release();
-		std::cout << "Read " << path_map_0_1 << std::endl;
-	} else {
-		throw std::runtime_error("Could not load map_0_1.");
+
+	if (cameras.GetSize() >= 1) {
+		String_t sn1 { };
+		sn1 = cameras[sortedCameraIdx[0]].GetDeviceInfo().GetSerialNumber();
+
+		std::stringstream ss1 { };
+		ss1 << path_cal;
+		ss1 << "calibration_";
+		ss1 << sn1.c_str();
+		ss1 << "/map1.xml";
+		std::string filename1 = ss1.str();
+
+		cv::FileStorage file_0_1(filename1, cv::FileStorage::READ);
+		if (file_0_1.isOpened()) {
+			file_0_1["mat_map1"] >> map_0_1;
+			file_0_1.release();
+			std::cout << "Read " << filename1 << std::endl;
+		} else {
+			throw std::runtime_error("Could not load map_0_1.");
+		}
+
+		std::stringstream ss2 { };
+		ss2 << path_cal;
+		ss2 << "calibration_";
+		ss2 << sn1.c_str();
+		ss2 << "/map2.xml";
+		std::string filename2 = ss2.str();
+
+		cv::FileStorage file_0_2(filename2, cv::FileStorage::READ);
+		if (file_0_2.isOpened()) {
+			file_0_2["mat_map2"] >> map_0_2;
+			file_0_2.release();
+			std::cout << "Read " << filename2 << std::endl;
+		} else {
+			throw std::runtime_error("Could not load map_0_2.");
+		}
+
+		map_1_1 = map_0_1;
+		map_1_2 = map_0_2;
+
 	}
 
-	cv::FileStorage file_0_2(path_map_0_2, cv::FileStorage::READ);
-	if (file_0_2.isOpened()) {
-		file_0_2["mat_map2"] >> map_0_2;
-		file_0_2.release();
-		std::cout << "Read " << path_map_0_2 << std::endl;
-	} else {
-		throw std::runtime_error("Could not load map_0_2.");
-	}
+	if (cameras.GetSize() == 2) {
+		String_t sn2 { };
+		sn2 = cameras[sortedCameraIdx[1]].GetDeviceInfo().GetSerialNumber();
 
-	cv::FileStorage file_1_1(path_map_1_1, cv::FileStorage::READ);
-	if (file_1_1.isOpened()) {
-		file_1_1["mat_map1"] >> map_1_1;
-		file_1_1.release();
-		std::cout << "Read " << path_map_1_1 << std::endl;
-	} else {
-		throw std::runtime_error("Could not load map_1_1.");
-	}
+		std::stringstream ss3 { };
+		ss3 << path_cal;
+		ss3 << "calibration_";
+		ss3 << sn2.c_str();
+		ss3 << "/map1.xml";
+		std::string filename3 = ss3.str();
 
-	cv::FileStorage file_1_2(path_map_1_2, cv::FileStorage::READ);
-	if (file_1_2.isOpened()) {
-		file_1_2["mat_map2"] >> map_1_2;
-		file_1_2.release();
-		std::cout << "Read " << path_map_1_2 << std::endl;
-	} else {
-		throw std::runtime_error("Could not load map_1_2.");
+		cv::FileStorage file_1_1(filename3, cv::FileStorage::READ);
+		if (file_1_1.isOpened()) {
+			file_1_1["mat_map1"] >> map_1_1;
+			file_1_1.release();
+			std::cout << "Read " << filename3 << std::endl;
+		} else {
+			throw std::runtime_error("Could not load map_1_1.");
+		}
+
+		std::stringstream ss4 { };
+		ss4 << path_cal;
+		ss4 << "calibration_";
+		ss4 << sn2.c_str();
+		ss4 << "/map2.xml";
+		std::string filename4 = ss4.str();
+
+		cv::FileStorage file_1_2(filename4, cv::FileStorage::READ);
+		if (file_1_2.isOpened()) {
+			file_1_2["mat_map2"] >> map_1_2;
+			file_1_2.release();
+			std::cout << "Read " << filename4 << std::endl;
+		} else {
+			throw std::runtime_error("Could not load map_0_2.");
+		}
+
 	}
 
 }
@@ -589,6 +640,7 @@ inline std::string Cameras::StampTime() {
 Cameras::~Cameras() {
 
 	cameras.StopGrabbing();
+
 
 	for (size_t i = 0; i < cameras.GetSize(); ++i) {
 		cameras[i].DeviceReset();
