@@ -378,12 +378,16 @@ void Cameras::GrabImages() {
 		}
 
 		if (cameras.GetSize() == 1) {
-		// If there is only one camera present, replicate the second image with the first image
-			img1 = img0;
-		}
+		// If there is only one camera present, put only one image
+			std::cout << img0.getSerialNumber() << std::endl;
+			PairImages imgs2store { std::move(img0) };
+			std::cout << "Object created" << std::endl;
+			imgDisplayQueue.push(imgs2store);
 
-		PairImages imgs2store { std::move(img0), std::move(img1) };
-		imgDisplayQueue.push(imgs2store);
+		} else if (cameras.GetSize() == 2) {
+			PairImages imgs2store { std::move(img0), std::move(img1) };
+			imgDisplayQueue.push(imgs2store);
+		}
 
 		// In case you want to trigger again you should wait for the camera
 		// to become trigger-ready before issuing the next action command.

@@ -25,6 +25,16 @@ PairImages::PairImages(const Images &&a, const Images &&b) {
 	p_img1 = new Images { std::move(b) };
 }
 
+PairImages::PairImages(const Images &a) {
+	p_img0 = new Images { a };
+	p_img1 = new Images {};
+}
+
+PairImages::PairImages(const Images &&a) {
+	p_img0 = new Images { std::move(a) };
+	p_img1 = new Images {};
+}
+
 PairImages::PairImages(const PairImages &a) {
 	p_img0 = new Images { *(a.p_img0) };
 	p_img1 = new Images { *(a.p_img1) };
@@ -38,48 +48,70 @@ PairImages::PairImages(PairImages &&a) {
 }
 
 void PairImages::showPair() {
-	p_img0->show("0");
-	p_img1->show("1");
+	p_img0->show(p_img0->getSerialNumber());
+	p_img1->show(p_img1->getSerialNumber());
 }
 
 void PairImages::showPairConcat() {
-	cv::Mat m0 = p_img0->convertToCvMat();
-	cv::Mat m1 = p_img1->convertToCvMat();
-	cv::Mat m;
-	cv::hconcat(m0, m1, m);
+	if (p_img1->getImgBufferSize() != 0) {
+		cv::Mat m0 = p_img0->convertToCvMat();
+		cv::Mat m1 = p_img1->convertToCvMat();
+		cv::Mat m;
+		cv::hconcat(m0, m1, m);
 
-	/// Display
-	cv::namedWindow("Image", CV_WINDOW_NORMAL);
-	cv::imshow("Image", m);
+		/// Display
+		cv::namedWindow(p_img0->getSerialNumber() + "_" + p_img1->getSerialNumber(), CV_WINDOW_NORMAL);
+		cv::imshow(p_img0->getSerialNumber() + "_" + p_img1->getSerialNumber(), m);
+	} else {
+		p_img0->show(p_img0->getSerialNumber());
+	}
 }
 
 void PairImages::showUndistortPairConcat (const cv::Mat & map_0_1, const cv::Mat & map_0_2, const cv::Mat & map_1_1, const cv::Mat & map_1_2) {
-	cv::Mat m0 = p_img0->convertToCvMat();
-	cv::Mat m1 = p_img1->convertToCvMat();
 
-	cv::Mat undistorted_0;
-	cv::Mat undistorted_1;
+	if (p_img1->getImgBufferSize() != 0) {
+		cv::Mat m0 = p_img0->convertToCvMat();
+		cv::Mat m1 = p_img1->convertToCvMat();
 
-	// main remapping function that undistort the images
-	cv::remap(m0, undistorted_0, map_0_1, map_0_2, cv::INTER_CUBIC, cv::BORDER_CONSTANT);
-	cv::remap(m1, undistorted_1, map_1_1, map_1_2, cv::INTER_CUBIC, cv::BORDER_CONSTANT);
+		cv::Mat undistorted_0;
+		cv::Mat undistorted_1;
 
-	cv::Mat m;
-	cv::hconcat(undistorted_0, undistorted_1, m);
+		// main remapping function that undistort the images
+		cv::remap(m0, undistorted_0, map_0_1, map_0_2, cv::INTER_CUBIC, cv::BORDER_CONSTANT);
+		cv::remap(m1, undistorted_1, map_1_1, map_1_2, cv::INTER_CUBIC, cv::BORDER_CONSTANT);
 
-	/// Display
-	cv::namedWindow("Undistorted", CV_WINDOW_NORMAL);
-	cv::imshow("Undistorted", m);
+		cv::Mat m;
+		cv::hconcat(undistorted_0, undistorted_1, m);
+
+		/// Display
+		cv::namedWindow("Equirectangular_" + p_img0->getSerialNumber() + "_" + p_img1->getSerialNumber(), CV_WINDOW_NORMAL);
+		cv::imshow("Equirectangular_" + p_img0->getSerialNumber() + "_" + p_img1->getSerialNumber(), m);
+	} else {
+		cv::Mat m0 = p_img0->convertToCvMat();
+
+		cv::Mat undistorted_0;
+
+		// main remapping function that undistort the images
+		cv::remap(m0, undistorted_0, map_0_1, map_0_2, cv::INTER_CUBIC, cv::BORDER_CONSTANT);
+
+		/// Display
+		cv::namedWindow("Equirectangular_" + p_img0->getSerialNumber(), CV_WINDOW_NORMAL);
+		cv::imshow("Equirectangular_" + p_img0->getSerialNumber(), undistorted_0);
+	}
 }
 
 void PairImages::savePair(std::string path) {
 	p_img0->saveData(path);
-	p_img1->saveData(path);
+	if (p_img1->getImgBufferSize() != 0) {
+		p_img1->saveData(path);
+	}
 }
 
 void PairImages::setImgNumber (const long int &n) {
 	p_img0->setImgNumber(n);
-	p_img1->setImgNumber(n);
+	if (p_img1->getImgBufferSize() != 0) {
+		p_img1->setImgNumber(n);
+	}
 }
 
 PairImages & PairImages::operator=(const PairImages &a){

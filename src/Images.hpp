@@ -82,6 +82,7 @@ public:
 	int getAutoExpTime() const { return autoExpTime; };
 	int getAutoGain() const { return autoGain; };
 	long int getImgNumber () const { return numImages; };
+	size_t getImgBufferSize () const { return p_img->size(); };
 
 public:
 	void getBuffer (char *p) const;

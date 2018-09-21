@@ -21,6 +21,8 @@ public:
 	PairImages();
 	PairImages(const Images &a, const Images &b);
 	PairImages(const Images &&a, const Images &&b);
+	PairImages(const Images &a);
+	PairImages(const Images &&a);
 	PairImages(const PairImages &a);
 	PairImages(PairImages &&a);
 	void showPair();
