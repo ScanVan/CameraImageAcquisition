@@ -117,7 +117,7 @@ private:
 	double fps = 4.0; // Desired frame rate
 	bool startSaving { false };
 
-	bool useExternalTrigger { true }; // If true it configures the program to use the external trigger in line 1
+	bool useExternalTrigger { false }; // If true it configures the program to use the external trigger in line 1
 
 public:
 	Cameras();

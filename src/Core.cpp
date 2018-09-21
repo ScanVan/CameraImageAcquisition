@@ -52,17 +52,20 @@ std::string GetCurrentWorkingDir( void ) {
 
 void IssueTrigger (ScanVan::Cameras *cams) {
 
-	std::chrono::system_clock::time_point PreviousStartTime { std::chrono::system_clock::now() };
+	//std::chrono::system_clock::time_point PreviousStartTime { std::chrono::system_clock::now() };
+	std::chrono::system_clock::time_point StartTime { std::chrono::system_clock::now() };
 	const std::chrono::microseconds intervalPeriodMicros { static_cast<int>(1 / (cams->getFps()) * 1000000) };
 
 	std::chrono::system_clock::time_point nextStartTime { };
 
 	while (cams->getExitStatus() == false) {
 		// Setup timer
-		nextStartTime = PreviousStartTime + intervalPeriodMicros;
-		std::this_thread::sleep_until(nextStartTime);
+		//nextStartTime = PreviousStartTime + intervalPeriodMicros;
+		StartTime = StartTime + intervalPeriodMicros;
+		//std::this_thread::sleep_until(nextStartTime);
+		std::this_thread::sleep_until(StartTime);
 
-		PreviousStartTime = std::chrono::system_clock::now();
+		//PreviousStartTime = std::chrono::system_clock::now();
 
 		cams->IssueActionCommand();
 	}
