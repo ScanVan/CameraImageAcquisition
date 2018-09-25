@@ -115,9 +115,11 @@ private:
 	void Init();
 
 	double fps = 4.0; // Desired frame rate
-	bool startSaving { false };
+	bool startSaving { false }; // Flag used to start saving the images into the disk
 
-	bool useExternalTrigger { true }; // If true it configures the program to use the external trigger in line 1
+	bool useExternalTrigger { false }; // If true it configures the program to use the external trigger in line 1
+
+	bool useChunkFeatures {true }; // If true it uses the camera's clock to get the timestamp
 
 public:
 	Cameras();

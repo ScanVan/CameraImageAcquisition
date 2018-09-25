@@ -231,6 +231,29 @@ void Cameras::Init() {
 			cameras[i].TriggerActivation.SetValue(TriggerActivation_RisingEdge);
 		}
 	}
+
+	if (useChunkFeatures == true) {
+		// Configuration for chunk features
+		for (size_t i = 0; i < cameras.GetSize(); ++i) {
+
+			// Enable chunks in general.
+	        if (GenApi::IsWritable(cameras[i].ChunkModeActive))
+	        {
+	            cameras[i].ChunkModeActive.SetValue(true);
+	        }
+	        else
+	        {
+	            throw RUNTIME_EXCEPTION( "The camera doesn't support chunk features");
+	        }
+
+	        // Enable time stamp chunks.
+	        cameras[i].ChunkSelector.SetValue(ChunkSelector_Timestamp);
+	        cameras[i].ChunkEnable.SetValue(true);
+
+		}
+	}
+
+
 	// Starts grabbing for all cameras.
 	// The cameras won't transmit any image data, because they are configured to wait for an action command.
 
@@ -362,6 +385,24 @@ void Cameras::GrabImages() {
 
 				if (useExternalTrigger == true) {
 					captureTime = StampTime();
+				}
+
+				if (useChunkFeatures == true) {
+					// Check to see if a buffer containing chunk data has been received.
+					if (PayloadType_ChunkData != ptrGrabResult->GetPayloadType()) {
+						throw RUNTIME_EXCEPTION( "Unexpected payload type received.");
+					}
+
+		            // Access the chunk data attached to the result.
+		            // Before accessing the chunk data, you should check to see
+		            // if the chunk is readable. When it is readable, the buffer
+		            // contains the requested chunk data.
+		            if (IsReadable(ptrGrabResult->ChunkTimestamp)) {
+		            	std::ostringstream oss{};
+		            	oss << ptrGrabResult->ChunkTimestamp.GetValue();
+		            	captureTime = oss.str();
+		                cout << "TimeStamp (Result): " << captureTime << endl;
+		            }
 				}
 
 				// Copy image to the object's buffer
