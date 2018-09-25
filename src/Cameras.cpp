@@ -224,7 +224,8 @@ void Cameras::Init() {
 		// Configuration for external trigger
 		for (size_t i = 0; i < cameras.GetSize(); ++i) {
 			cameras[i].AcquisitionMode.SetValue(AcquisitionMode_Continuous);
-			cameras[i].TriggerSelector.SetValue(TriggerSelector_AcquisitionStart);
+			//cameras[i].TriggerSelector.SetValue(TriggerSelector_AcquisitionStart);
+			cameras[i].TriggerSelector.SetValue(TriggerSelector_FrameStart);
 			cameras[i].TriggerMode.SetValue(TriggerMode_On);
 			cameras[i].TriggerSource.SetValue(TriggerSource_Line1);
 			cameras[i].TriggerActivation.SetValue(TriggerActivation_RisingEdge);
@@ -285,8 +286,6 @@ void Cameras::GrabImages() {
 			std::shared_ptr<std::string> timeStamp { };
 			timeStamp = triggerQueue.wait_pop();
 			captureTime = *timeStamp;
-		} else {
-			captureTime = StampTime();
 		}
 
 		const int DefaultTimeout_ms { 5000 };
@@ -300,7 +299,7 @@ void Cameras::GrabImages() {
 
 		if (cameras.GetSize() >= 1) {
 			img0.setCameraIdx(0);
-			img0.setCaptureTime(captureTime);
+			//img0.setCaptureTime(captureTime);
 			img0.setExposureTime(cameras[sortedCameraIdx[0]].ExposureTimeAbs.GetValue());
 			img0.setGain(cameras[sortedCameraIdx[0]].GainRaw.GetValue());
 			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
@@ -320,7 +319,7 @@ void Cameras::GrabImages() {
 
 		if (cameras.GetSize() == 2) {
 			img1.setCameraIdx(1);
-			img1.setCaptureTime(captureTime);
+			//img1.setCaptureTime(captureTime);
 			img1.setExposureTime(cameras[sortedCameraIdx[1]].ExposureTimeAbs.GetValue());
 			img1.setGain(cameras[sortedCameraIdx[1]].GainRaw.GetValue());
 			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
@@ -361,11 +360,17 @@ void Cameras::GrabImages() {
 				cout << "GrabSucceeded: " << ptrGrabResult->GrabSucceeded() << endl;
 				uint8_t *pImageBuffer = static_cast<uint8_t *>(ptrGrabResult->GetBuffer());
 
+				if (useExternalTrigger == true) {
+					captureTime = StampTime();
+				}
+
 				// Copy image to the object's buffer
 				if (sortedCameraIdx[cameraIndex] == 0) {
 					img0.copyBuffer(reinterpret_cast<char *>(pImageBuffer));
+					img0.setCaptureTime(captureTime);
 				} else {
 					img1.copyBuffer(reinterpret_cast<char *>(pImageBuffer));
+					img1.setCaptureTime(captureTime);
 				}
 
 				cout << "Gray value of first pixel: " << static_cast<uint32_t>(pImageBuffer[0]) << endl << endl;
@@ -377,17 +382,9 @@ void Cameras::GrabImages() {
 			}
 		}
 
-		if (cameras.GetSize() == 1) {
-		// If there is only one camera present, put only one image
-			std::cout << img0.getSerialNumber() << std::endl;
-			PairImages imgs2store { std::move(img0) };
-			std::cout << "Object created" << std::endl;
-			imgDisplayQueue.push(imgs2store);
+		PairImages imgs2store { std::move(img0), std::move(img1) };
+		imgDisplayQueue.push(imgs2store);
 
-		} else if (cameras.GetSize() == 2) {
-			PairImages imgs2store { std::move(img0), std::move(img1) };
-			imgDisplayQueue.push(imgs2store);
-		}
 
 		// In case you want to trigger again you should wait for the camera
 		// to become trigger-ready before issuing the next action command.
