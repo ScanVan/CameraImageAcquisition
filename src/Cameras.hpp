@@ -121,6 +121,16 @@ private:
 
 	bool useChunkFeatures { true }; // If true it uses the camera's clock to get the timestamp
 
+	// White balance settings from cameras
+	// They are read at initialization
+	double balanceR_0 {};
+	double balanceG_0 {};
+	double balanceB_0 {};
+
+	double balanceR_1 { };
+	double balanceG_1 { };
+	double balanceB_1 { };
+
 public:
 	Cameras();
 	Cameras(std::string path_to_config_files);

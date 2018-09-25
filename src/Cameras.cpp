@@ -256,6 +256,24 @@ void Cameras::Init() {
 		}
 	}
 
+	for (size_t i = 0; i < cameras.GetSize(); ++i) {
+		if (i == 0) {
+			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
+			balanceR_0 = cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue();
+			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
+			balanceG_0 = cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue();
+			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
+			balanceB_0 = cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue();
+		} else if (i == 1) {
+			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
+			balanceR_1 = cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue();
+			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
+			balanceG_1 = cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue();
+			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
+			balanceB_1 = cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue();
+		}
+	}
+
 
 	// Starts grabbing for all cameras.
 	// The cameras won't transmit any image data, because they are configured to wait for an action command.
@@ -326,12 +344,12 @@ void Cameras::GrabImages() {
 		if (cameras.GetSize() >= 1) {
 			img0.setCameraIdx(0);
 			//img0.setCaptureTime(captureTime);
-			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
-			img0.setBalanceR(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
-			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
-			img0.setBalanceG(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
-			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
-			img0.setBalanceB(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+//			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
+//			img0.setBalanceR(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+//			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
+//			img0.setBalanceG(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
+//			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
+//			img0.setBalanceB(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
 			img0.setAutoExpTime(static_cast<int>(autoExpTimeCont));
 			img0.setAutoGain(static_cast<int>(autoGainCont));
 			std::stringstream ss1 { };
@@ -344,12 +362,12 @@ void Cameras::GrabImages() {
 		if (cameras.GetSize() == 2) {
 			img1.setCameraIdx(1);
 			//img1.setCaptureTime(captureTime);
-			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
-			img1.setBalanceR(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
-			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
-			img1.setBalanceG(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
-			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
-			img1.setBalanceB(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+//			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
+//			img1.setBalanceR(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+//			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
+//			img1.setBalanceG(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
+//			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Blue);
+//			img1.setBalanceB(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
 			img1.setAutoExpTime(static_cast<int>(autoExpTimeCont));
 			img1.setAutoGain(static_cast<int>(autoGainCont));
 			std::stringstream ss2 { };
@@ -424,12 +442,18 @@ void Cameras::GrabImages() {
 					img0.setCaptureCamTime(captureTimeCam);
 					img0.setExposureTime(exposureTime);
 					img0.setGain(gain);
+					img0.setBalanceR(balanceR_0);
+					img0.setBalanceG(balanceG_0);
+					img0.setBalanceB(balanceB_0);
 				} else {
 					img1.copyBuffer(reinterpret_cast<char *>(pImageBuffer));
 					img1.setCaptureCPUTime(captureTimeCPU);
 					img1.setCaptureCamTime(captureTimeCam);
 					img1.setExposureTime(exposureTime);
 					img1.setGain(gain);
+					img1.setBalanceR(balanceR_1);
+					img1.setBalanceG(balanceG_1);
+					img1.setBalanceB(balanceB_1);
 				}
 
 				cout << "Gray value of first pixel: " << static_cast<uint32_t>(pImageBuffer[0]) << endl << endl;
