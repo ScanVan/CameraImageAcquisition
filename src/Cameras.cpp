@@ -248,8 +248,11 @@ void Cameras::Init() {
 
 	        // Enable time stamp chunks.
 	        cameras[i].ChunkSelector.SetValue(ChunkSelector_Timestamp);
-	        cameras[i].ChunkEnable.SetValue(true);
-
+			cameras[i].ChunkEnable.SetValue(true);
+			cameras[i].ChunkSelector.SetValue(ChunkSelector_ExposureTime);
+			cameras[i].ChunkEnable.SetValue(true);
+			cameras[i].ChunkSelector.SetValue(ChunkSelector_GainAll);
+			cameras[i].ChunkEnable.SetValue(true);
 		}
 	}
 
@@ -304,7 +307,6 @@ void Cameras::GrabImages() {
 	try {
 
 		std::string captureTimeCPU {};
-		std::string captureTimeCam {};
 
 		if (useExternalTrigger == false) {
 			std::shared_ptr<std::string> timeStamp { };
@@ -324,8 +326,6 @@ void Cameras::GrabImages() {
 		if (cameras.GetSize() >= 1) {
 			img0.setCameraIdx(0);
 			//img0.setCaptureTime(captureTime);
-			img0.setExposureTime(cameras[sortedCameraIdx[0]].ExposureTimeAbs.GetValue());
-			img0.setGain(cameras[sortedCameraIdx[0]].GainRaw.GetValue());
 			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
 			img0.setBalanceR(cameras[sortedCameraIdx[0]].BalanceRatioAbs.GetValue());
 			cameras[sortedCameraIdx[0]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
@@ -344,8 +344,6 @@ void Cameras::GrabImages() {
 		if (cameras.GetSize() == 2) {
 			img1.setCameraIdx(1);
 			//img1.setCaptureTime(captureTime);
-			img1.setExposureTime(cameras[sortedCameraIdx[1]].ExposureTimeAbs.GetValue());
-			img1.setGain(cameras[sortedCameraIdx[1]].GainRaw.GetValue());
 			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Red);
 			img1.setBalanceR(cameras[sortedCameraIdx[1]].BalanceRatioAbs.GetValue());
 			cameras[sortedCameraIdx[1]].BalanceRatioSelector.SetValue(BalanceRatioSelector_Green);
@@ -364,6 +362,11 @@ void Cameras::GrabImages() {
 		// Retrieve images from all cameras.
 
 		for (size_t i = 0; i < cameras.GetSize() && cameras.IsGrabbing(); ++i) {
+
+			std::string captureTimeCam {};
+			double exposureTime {};
+			int gain {};
+
 			// CInstantCameraArray::RetrieveResult will return grab results in the order they arrive.
 			cameras.RetrieveResult(DefaultTimeout_ms, ptrGrabResult, TimeoutHandling_ThrowException);
 
@@ -404,6 +407,14 @@ void Cameras::GrabImages() {
 		            	captureTimeCam = oss.str();
 		                cout << "TimeStamp (Result): " << captureTimeCam << endl;
 		            }
+					if (IsReadable(ptrGrabResult->ChunkExposureTime)) {
+						exposureTime = ptrGrabResult->ChunkExposureTime.GetValue();
+						cout << "ExposureTime (Result): " << exposureTime << endl;
+					}
+					if (IsReadable(ptrGrabResult->ChunkGainAll)) {
+						gain = ptrGrabResult->ChunkGainAll.GetValue();
+						cout << "Gain (Result): " << gain << endl;
+					}
 				}
 
 				// Copy image to the object's buffer
@@ -411,10 +422,14 @@ void Cameras::GrabImages() {
 					img0.copyBuffer(reinterpret_cast<char *>(pImageBuffer));
 					img0.setCaptureCPUTime(captureTimeCPU);
 					img0.setCaptureCamTime(captureTimeCam);
+					img0.setExposureTime(exposureTime);
+					img0.setGain(gain);
 				} else {
 					img1.copyBuffer(reinterpret_cast<char *>(pImageBuffer));
 					img1.setCaptureCPUTime(captureTimeCPU);
 					img1.setCaptureCamTime(captureTimeCam);
+					img1.setExposureTime(exposureTime);
+					img1.setGain(gain);
 				}
 
 				cout << "Gray value of first pixel: " << static_cast<uint32_t>(pImageBuffer[0]) << endl << endl;
