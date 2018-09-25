@@ -54,7 +54,8 @@ Images::Images(const Images &img) {
 	numImages = img.numImages;
 	cameraIdx = img.cameraIdx;
 	serialNum = img.serialNum;
-	captureTimeStr = img.captureTimeStr;
+	captureTimeCPUStr = img.captureTimeCPUStr;
+	captureTimeCamStr = img.captureTimeCamStr;
 	exposureTime = img.exposureTime;
 	gain = img.gain;
 	balanceR = img.balanceR;
@@ -71,7 +72,8 @@ Images::Images(Images &&img) {
 
 	cameraIdx = img.cameraIdx;
 	serialNum = img.serialNum;
-	captureTimeStr = img.captureTimeStr;
+	captureTimeCPUStr = img.captureTimeCPUStr;
+	captureTimeCamStr = img.captureTimeCamStr;
 	exposureTime = img.exposureTime;
 	gain = img.gain;
 	balanceR = img.balanceR;
@@ -188,8 +190,13 @@ void Images::loadData(std::string path) {
 
 		getline (myFile, line);
 		token = line.substr(line.find_first_of(":") + 1);
-		captureTimeStr = token;
-		std::cout << "Capture Time: " << captureTimeStr;
+		captureTimeCPUStr = token;
+		std::cout << "Capture Time CPU: " << captureTimeCPUStr;
+
+		getline(myFile, line);
+		token = line.substr(line.find_first_of(":") + 1);
+		captureTimeCamStr = token;
+		std::cout << "Capture Time Cam: " << captureTimeCamStr;
 
 		getline (myFile, line);
 		token = line.substr(line.find_last_of(":") + 1);
@@ -295,7 +302,8 @@ void Images::saveData(std::string path) {
 		myFile << "Image number: " << numImages << std::endl;
 		myFile << "Camera Index: " << cameraIdx << std::endl;
 		myFile << "Camera SN: " << serialNum << std::endl;
-		myFile << "Capture Time: " << captureTimeStr << std::endl;
+		myFile << "Capture Time CPU: " << captureTimeCPUStr << std::endl;
+		myFile << "Capture Time Cam: " << captureTimeCamStr << std::endl;
 		myFile << "Exposure Time: " << exposureTime << std::endl;
 		myFile << "Gain: " << gain << std::endl;
 		myFile << "Balance Red  : " << balanceR << std::endl;
@@ -402,7 +410,8 @@ Images & Images::operator=(const Images &a) {
 		p_img = new std::vector<uint8_t> {*(a.p_img)};
 		numImages = a.numImages;
 		cameraIdx = a.cameraIdx;
-		captureTimeStr = a.captureTimeStr;
+		captureTimeCPUStr = a.captureTimeCPUStr;
+		captureTimeCamStr = a.captureTimeCamStr;
 		exposureTime = a.exposureTime;
 		gain = a.gain;
 		balanceR = a.balanceR;
@@ -422,7 +431,8 @@ Images & Images::operator=(Images &&a) {
 		a.p_img = nullptr;
 		numImages = a.numImages;
 		cameraIdx = a.cameraIdx;
-		captureTimeStr = a.captureTimeStr;
+		captureTimeCPUStr = a.captureTimeCPUStr;
+		captureTimeCamStr = a.captureTimeCamStr;
 		exposureTime = a.exposureTime;
 		gain = a.gain;
 		balanceR = a.balanceR;

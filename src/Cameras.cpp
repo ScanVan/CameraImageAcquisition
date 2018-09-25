@@ -273,14 +273,14 @@ void Cameras::IssueActionCommand() {
 
 //		const int DefaultTimeout_ms { 5000 };
 
-		std::string captureTime = StampTime();
+		std::string captureTimeCPU = StampTime();
 
 		// Now we issue the action command to all devices in the subnet.
 		// The devices with a matching DeviceKey, GroupKey and valid GroupMask will grab an image.
 		pTL->IssueActionCommand(DeviceKey, GroupKey, AllGroupMask, subnet);
 
 		// If the action command is successful push the time stamp for retrieving the image
-		triggerQueue.push ( captureTime );
+		triggerQueue.push ( captureTimeCPU );
 
 //		cameras[0].WaitForFrameTriggerReady(DefaultTimeout_ms, TimeoutHandling_ThrowException);
 //		cameras[1].WaitForFrameTriggerReady(DefaultTimeout_ms, TimeoutHandling_ThrowException);
@@ -303,12 +303,13 @@ void Cameras::GrabImages() {
 
 	try {
 
-		std::string captureTime {};
+		std::string captureTimeCPU {};
+		std::string captureTimeCam {};
 
 		if (useExternalTrigger == false) {
 			std::shared_ptr<std::string> timeStamp { };
 			timeStamp = triggerQueue.wait_pop();
-			captureTime = *timeStamp;
+			captureTimeCPU = *timeStamp;
 		}
 
 		const int DefaultTimeout_ms { 5000 };
@@ -384,7 +385,7 @@ void Cameras::GrabImages() {
 				uint8_t *pImageBuffer = static_cast<uint8_t *>(ptrGrabResult->GetBuffer());
 
 				if (useExternalTrigger == true) {
-					captureTime = StampTime();
+					captureTimeCPU = StampTime();
 				}
 
 				if (useChunkFeatures == true) {
@@ -400,18 +401,20 @@ void Cameras::GrabImages() {
 		            if (IsReadable(ptrGrabResult->ChunkTimestamp)) {
 		            	std::ostringstream oss{};
 		            	oss << ptrGrabResult->ChunkTimestamp.GetValue();
-		            	captureTime = oss.str();
-		                cout << "TimeStamp (Result): " << captureTime << endl;
+		            	captureTimeCam = oss.str();
+		                cout << "TimeStamp (Result): " << captureTimeCam << endl;
 		            }
 				}
 
 				// Copy image to the object's buffer
 				if (sortedCameraIdx[cameraIndex] == 0) {
 					img0.copyBuffer(reinterpret_cast<char *>(pImageBuffer));
-					img0.setCaptureTime(captureTime);
+					img0.setCaptureCPUTime(captureTimeCPU);
+					img0.setCaptureCamTime(captureTimeCam);
 				} else {
 					img1.copyBuffer(reinterpret_cast<char *>(pImageBuffer));
-					img1.setCaptureTime(captureTime);
+					img1.setCaptureCPUTime(captureTimeCPU);
+					img1.setCaptureCamTime(captureTimeCam);
 				}
 
 				cout << "Gray value of first pixel: " << static_cast<uint32_t>(pImageBuffer[0]) << endl << endl;
