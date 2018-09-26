@@ -186,6 +186,7 @@ public:
 	void LoadParameters();
 	void LoadCameraConfig();
 	void LoadMap();
+	void DemoLoadImages();
 	std::string StampTime();
 
 	virtual ~Cameras();

@@ -135,6 +135,16 @@ void DisplayImages(ScanVan::Cameras *cams) {
 	}
 }
 
+void DemoLoadImages(ScanVan::Cameras *cams) {
+
+	while (cams->getExitStatus() == false) {
+
+		cams->DemoLoadImages();
+
+	}
+
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -151,6 +161,8 @@ int main(int argc, char* argv[])
     	//ScanVan::Cameras cams { config_path };
 		ScanVan::Cameras cams {};
 		//cams.setDataPath(data_path);
+
+		//DemoLoadImages(&cams);
 
 		if (cams.getUseExternalTrigger() == false) {
 			std::thread thIssueActionCommand(IssueTrigger, &cams);

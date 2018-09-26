@@ -508,6 +508,35 @@ void Cameras::DisplayImages() {
 	}
 }
 
+void Cameras::DemoLoadImages() {
+	int key { };
+
+	Images img0 { data_path + "1_0.raw" };
+	Images img1 { data_path + "1_1.raw" };
+
+	PairImages imgs { img0, img1 };
+
+//	std::shared_ptr<PairImages> imgs { };
+//	imgs = imgDisplayQueue.wait_pop();
+	imgs.showPairConcat();
+	imgs.showUndistortPairConcat(map_0_1, map_0_2, map_1_1, map_1_2);
+	key = cv::waitKey(1);
+
+	if (key == 27) {
+		// if ESC key is pressed signal to exit the program
+		exitProgram = true;
+		//imgStorageQueue.push (*imgs);
+	} /*else if ((key == 83) || (key == 115) || startSaving) {
+		++imgNum; // increase the image number;
+		imgs->setImgNumber(imgNum);
+		imgStorageQueue.push (*imgs);
+		startSaving = true;
+	}*/
+
+
+
+}
+
 void Cameras::StoreImages() {
 
 	std::shared_ptr<PairImages> imgs { };
@@ -657,12 +686,15 @@ void Cameras::LoadMap() {
 			throw std::runtime_error("Could not load map_0_2.");
 		}
 
-		map_1_1 = map_0_1;
-		map_1_2 = map_0_2;
+		if (cameras.GetSize() == 1) {
+			map_1_1 = map_0_1;
+			map_1_2 = map_0_2;
+		}
 
 	}
 
 	if (cameras.GetSize() == 2) {
+
 		String_t sn2 { };
 		sn2 = cameras[sortedCameraIdx[1]].GetDeviceInfo().GetSerialNumber();
 
