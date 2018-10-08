@@ -24,8 +24,8 @@ ImagesCV::ImagesCV(ImagesRaw &img): Images{} {
 
 void ImagesCV::show () const {
 	/// Display
-	cv::namedWindow("ImageCV", cv::WINDOW_NORMAL);
-	cv::imshow("ImageCV", openCvImage);
+	cv::namedWindow("Image", cv::WINDOW_NORMAL);
+	cv::imshow("Image", openCvImage);
 };
 
 void ImagesCV::show(std::string name) const {

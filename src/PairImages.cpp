@@ -150,9 +150,11 @@ void PairImages::convertRaw2CV() {
 
 	if ((p0 = dynamic_cast<ImagesRaw *>(p_img0))) {
 		p_img0 = new ImagesCV { *p0 };
+		delete p0;
 	}
 	if ((p1 = dynamic_cast<ImagesRaw *>(p_img1))) {
 		p_img1 = new ImagesCV { *p1 };
+		delete p1;
 	}
 
 }
