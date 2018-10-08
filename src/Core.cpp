@@ -13,7 +13,6 @@
 #include <iostream>
 #include <unistd.h>
 #include <chrono>
-#include "Images.hpp"
 #include <thread>
 
 // Include files to use OpenCV API
@@ -29,6 +28,7 @@
 
 #include <time.h>
 #include <chrono>
+#include "ImagesRaw.hpp"
 
 // Settings to use Basler GigE cameras.
 using namespace Basler_GigECameraParams;

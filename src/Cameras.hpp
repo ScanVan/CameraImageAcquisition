@@ -22,8 +22,6 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include "Images.hpp"
-#include "PairImages.hpp"
 #include "Queue.hpp"
 
 #include <algorithm>
@@ -32,6 +30,8 @@
 
 #include <sys/time.h>
 #include <chrono>
+#include "ImagesRaw.hpp"
+#include "PairImagesRaw.hpp"
 
 namespace ScanVan {
 

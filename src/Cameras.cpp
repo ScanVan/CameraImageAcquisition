@@ -338,8 +338,8 @@ void Cameras::GrabImages() {
 		CBaslerGigEGrabResultPtr ptrGrabResult { };
 
 		// Create an Image objects for the grabbed data
-		Images img0 {};
-		Images img1 {};
+		ImagesRaw img0 {};
+		ImagesRaw img1 {};
 
 		if (cameras.GetSize() >= 1) {
 			img0.setCameraIdx(0);
@@ -511,8 +511,8 @@ void Cameras::DisplayImages() {
 void Cameras::DemoLoadImages() {
 	int key { };
 
-	Images img0 { data_path + "1_0.raw" };
-	Images img1 { data_path + "1_1.raw" };
+	ImagesRaw img0 { data_path + "1_0.raw" };
+	ImagesRaw img1 { data_path + "1_1.raw" };
 
 	PairImages imgs { img0, img1 };
 

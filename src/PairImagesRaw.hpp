@@ -9,20 +9,20 @@
 #ifndef PAIRIMAGES_HPP_
 #define PAIRIMAGES_HPP_
 
-#include "Images.hpp"
+#include "ImagesRaw.hpp"
 
 namespace ScanVan {
 
 class PairImages {
-	Images *p_img0;
-	Images *p_img1;
+	ImagesRaw *p_img0;
+	ImagesRaw *p_img1;
 
 public:
 	PairImages();
-	PairImages(const Images &a, const Images &b);
-	PairImages(const Images &&a, const Images &&b);
-	PairImages(const Images &a);
-	PairImages(const Images &&a);
+	PairImages(const ImagesRaw &a, const ImagesRaw &b);
+	PairImages(const ImagesRaw &&a, const ImagesRaw &&b);
+	PairImages(const ImagesRaw &a);
+	PairImages(const ImagesRaw &&a);
 	PairImages(const PairImages &a);
 	PairImages(PairImages &&a);
 	void showPair();

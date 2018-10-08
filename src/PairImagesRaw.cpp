@@ -6,38 +6,38 @@
 // Description : It encapsulates images from the two cameras into one entity.
 //============================================================================
 
-#include "PairImages.hpp"
+#include "PairImagesRaw.hpp"
 
 namespace ScanVan {
 
 PairImages::PairImages() {
-	p_img0 = new Images {};
-	p_img1 = new Images {};
+	p_img0 = new ImagesRaw {};
+	p_img1 = new ImagesRaw {};
 }
 
-PairImages::PairImages(const Images &a, const Images &b) {
-	p_img0 = new Images { a };
-	p_img1 = new Images { b };
+PairImages::PairImages(const ImagesRaw &a, const ImagesRaw &b) {
+	p_img0 = new ImagesRaw { a };
+	p_img1 = new ImagesRaw { b };
 }
 
-PairImages::PairImages(const Images &&a, const Images &&b) {
-	p_img0 = new Images { std::move(a) };
-	p_img1 = new Images { std::move(b) };
+PairImages::PairImages(const ImagesRaw &&a, const ImagesRaw &&b) {
+	p_img0 = new ImagesRaw { std::move(a) };
+	p_img1 = new ImagesRaw { std::move(b) };
 }
 
-PairImages::PairImages(const Images &a) {
-	p_img0 = new Images { a };
-	p_img1 = new Images {};
+PairImages::PairImages(const ImagesRaw &a) {
+	p_img0 = new ImagesRaw { a };
+	p_img1 = new ImagesRaw {};
 }
 
-PairImages::PairImages(const Images &&a) {
-	p_img0 = new Images { std::move(a) };
-	p_img1 = new Images {};
+PairImages::PairImages(const ImagesRaw &&a) {
+	p_img0 = new ImagesRaw { std::move(a) };
+	p_img1 = new ImagesRaw {};
 }
 
 PairImages::PairImages(const PairImages &a) {
-	p_img0 = new Images { *(a.p_img0) };
-	p_img1 = new Images { *(a.p_img1) };
+	p_img0 = new ImagesRaw { *(a.p_img0) };
+	p_img1 = new ImagesRaw { *(a.p_img1) };
 }
 
 PairImages::PairImages(PairImages &&a) {
@@ -60,7 +60,7 @@ void PairImages::showPairConcat() {
 		cv::hconcat(m0, m1, m);
 
 		/// Display
-		cv::namedWindow(p_img0->getSerialNumber() + "_" + p_img1->getSerialNumber(), CV_WINDOW_NORMAL);
+		cv::namedWindow(p_img0->getSerialNumber() + "_" + p_img1->getSerialNumber(),cv::WINDOW_NORMAL);
 		cv::imshow(p_img0->getSerialNumber() + "_" + p_img1->getSerialNumber(), m);
 	} else {
 		p_img0->show(p_img0->getSerialNumber());
@@ -84,7 +84,7 @@ void PairImages::showUndistortPairConcat (const cv::Mat & map_0_1, const cv::Mat
 		cv::hconcat(undistorted_0, undistorted_1, m);
 
 		/// Display
-		cv::namedWindow("Equirectangular_" + p_img0->getSerialNumber() + "_" + p_img1->getSerialNumber(), CV_WINDOW_NORMAL);
+		cv::namedWindow("Equirectangular_" + p_img0->getSerialNumber() + "_" + p_img1->getSerialNumber(), cv::WINDOW_NORMAL);
 		cv::imshow("Equirectangular_" + p_img0->getSerialNumber() + "_" + p_img1->getSerialNumber(), m);
 	} else {
 		cv::Mat m0 = p_img0->convertToCvMat();
@@ -95,7 +95,7 @@ void PairImages::showUndistortPairConcat (const cv::Mat & map_0_1, const cv::Mat
 		cv::remap(m0, undistorted_0, map_0_1, map_0_2, cv::INTER_CUBIC, cv::BORDER_CONSTANT);
 
 		/// Display
-		cv::namedWindow("Equirectangular_" + p_img0->getSerialNumber(), CV_WINDOW_NORMAL);
+		cv::namedWindow("Equirectangular_" + p_img0->getSerialNumber(),cv::WINDOW_NORMAL);
 		cv::imshow("Equirectangular_" + p_img0->getSerialNumber(), undistorted_0);
 	}
 }
@@ -118,8 +118,8 @@ PairImages & PairImages::operator=(const PairImages &a){
 	if (this != &a) {
 		delete p_img0;
 		delete p_img1;
-		p_img0 = new Images { *(a.p_img0) };
-		p_img1 = new Images { *(a.p_img1) };
+		p_img0 = new ImagesRaw { *(a.p_img0) };
+		p_img1 = new ImagesRaw { *(a.p_img1) };
 	}
 	return *this;
 }

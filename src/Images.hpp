@@ -1,15 +1,5 @@
-//============================================================================
-// Name        : Images.hpp
-// Author      : Marcelo Kaihara
-// Version     : 1.0
-// Copyright   :
-// Description : It has the routines for manimulating the underlying images.
-// 				 It has functions to write and load images together with camera configuration
-//				 It has functions that displays the images on screen.
-//============================================================================
-
-#ifndef IMAGES_HPP_
-#define IMAGES_HPP_
+#ifndef SRC_IMAGES_HPP_
+#define SRC_IMAGES_HPP_
 
 #include <vector>
 #include <string>
@@ -19,7 +9,6 @@
 #include <chrono>
 #include <sstream>
 
-
 // Include files to use OpenCV API
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
@@ -28,9 +17,6 @@
 namespace ScanVan {
 
 class Images {
-private:
-	std::vector<uint8_t> * p_img;
-
 protected:
 	size_t height = 3008;
 	size_t width = 3008;
@@ -46,15 +32,8 @@ protected:
 	int autoGain = 0; 		// Auto Gain
 	long int numImages = 0;
 	std::string serialNum{ };
-
 public:
 	Images();
-	Images(char * p);
-	Images(size_t h, size_t w);
-	Images(size_t h, size_t w, char * p);
-	Images(std::string path);
-	Images(const Images &img);
-	Images(Images &&img);
 
 	void setHeight(size_t h) {height = h;};
 	void setWidth(size_t w) {width = w;};
@@ -85,54 +64,17 @@ public:
 	int getAutoExpTime() const { return autoExpTime; };
 	int getAutoGain() const { return autoGain; };
 	long int getImgNumber () const { return numImages; };
-	size_t getImgBufferSize () const { return p_img->size(); };
 
-public:
-	void getBuffer (char *p) const;
-	void copyBuffer (char *p);
-
-	void loadImage (std::string path);
-	void saveImage (std::string path);
-	void loadData (std::string path);
-	void saveData (std::string path);
-	void show () const;
-	void show (std::string name) const;
-
-	cv::Mat convertToCvMat ();
-
-protected:
-	std::string convertTimeToString (time_t t);
-	time_t convertStringToTime (std::string str);
-
-public:
-	Images & operator=(const Images &a);
-	Images & operator=(Images &&a);
+	virtual void show () const {};
+	virtual void show (std::string name) const {};
+	virtual void loadData (std::string path) {};
+	virtual void saveData (std::string path) {};
+	virtual void loadImage (std::string path) {};
+	virtual void saveImage (std::string path) {};
 
 	virtual ~Images();
-
-	friend std::ostream & operator <<(std::ostream & out, const Images &a) {
-		out << "[";
-		for (int i=0; i < 10; ++i) {
-			out << static_cast<int>((*a.p_img)[i]) << " ";
-		}
-		out << "...]" << std::endl;
-		out << "height: " << a.height << std::endl;
-		out << "width: " << a.width << std::endl;
-		out << "cameraIdx: " << a.cameraIdx << std::endl;
-		out << "captureCPUTime: " << a.captureTimeCPUStr << std::endl;
-		out << "captureCamTime: " << a.captureTimeCamStr << std::endl;
-		out << "exposureTime: " << a.exposureTime << std::endl;
-		out << "gain: " << a.gain << std::endl;
-		out << "balanceR: " << a.balanceR << std::endl;
-		out << "balanceG: " << a.balanceG << std::endl;
-		out << "balanceB: " << a.balanceB << std::endl;
-		out << "autoExpTime: " << a.autoExpTime << std::endl;
-		out << "autoGain: " << a.autoGain << std::endl;
-
-		return out;
-	}
 };
 
 } /* namespace ScanVan */
 
-#endif /* IMAGES_HPP_ */
+#endif /* SRC_IMAGES_HPP_ */
