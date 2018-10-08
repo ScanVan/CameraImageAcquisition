@@ -94,6 +94,10 @@ void ImagesRaw::getBuffer(char *p) const{
 	memcpy(p, p_img->data(), width*height);
 }
 
+uint8_t* ImagesRaw::getBufferP () {
+	return p_img->data();
+}
+
 void ImagesRaw::copyBuffer(char *p) {
 // copies the image passed by the pointer p into the object's buffer
 	p_img->assign(p,p+(height*width));

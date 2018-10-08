@@ -31,7 +31,7 @@
 #include <sys/time.h>
 #include <chrono>
 #include "ImagesRaw.hpp"
-#include "PairImagesRaw.hpp"
+#include "PairImages.hpp"
 
 namespace ScanVan {
 

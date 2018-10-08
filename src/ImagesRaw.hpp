@@ -46,6 +46,7 @@ public:
 public:
 	void getBuffer (char *p) const;
 	void copyBuffer (char *p);
+	uint8_t* getBufferP ();
 
 	void loadImage (std::string path);
 	void saveImage (std::string path);

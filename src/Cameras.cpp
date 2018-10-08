@@ -493,7 +493,11 @@ void Cameras::DisplayImages() {
 	imgs = imgDisplayQueue.wait_pop();
 	//imgs->showPairConcat();
 
-	imgs->showUndistortPairConcat(map_0_1, map_0_2, map_1_1, map_1_2);
+	PairImages imgs2 {std::move(*imgs)};
+	imgs2.convertRaw2CV();
+	imgs2.showPair();
+
+	//imgs->showUndistortPairConcat(map_0_1, map_0_2, map_1_1, map_1_2);
 	key = cv::waitKey(1);
 
 	if (key == 27) {
@@ -501,10 +505,10 @@ void Cameras::DisplayImages() {
 		exitProgram = true;
 		imgStorageQueue.push (*imgs);
 	} else if ((key == 83) || (key == 115) || startSaving) {
-		++imgNum; // increase the image number;
+	/*	++imgNum; // increase the image number;
 		imgs->setImgNumber(imgNum);
 		imgStorageQueue.push (*imgs);
-		startSaving = true;
+		startSaving = true;*/
 	}
 }
 
@@ -518,8 +522,9 @@ void Cameras::DemoLoadImages() {
 
 //	std::shared_ptr<PairImages> imgs { };
 //	imgs = imgDisplayQueue.wait_pop();
-	imgs.showPairConcat();
-	imgs.showUndistortPairConcat(map_0_1, map_0_2, map_1_1, map_1_2);
+	imgs.showPair();
+	/*imgs.showPairConcat();
+	imgs.showUndistortPairConcat(map_0_1, map_0_2, map_1_1, map_1_2);*/
 	key = cv::waitKey(1);
 
 	if (key == 27) {
@@ -542,7 +547,7 @@ void Cameras::StoreImages() {
 	std::shared_ptr<PairImages> imgs { };
 	imgs = imgStorageQueue.wait_pop();
 	if (exitProgram != true) {
-		imgs->savePair(data_path);
+		//imgs->savePair(data_path);
 	}
 }
 

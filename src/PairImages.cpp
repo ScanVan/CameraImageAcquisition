@@ -6,45 +6,155 @@
 // Description : It encapsulates images from the two cameras into one entity.
 //============================================================================
 
-#include "PairImagesRaw.hpp"
+#include "PairImages.hpp"
 
 namespace ScanVan {
 
 PairImages::PairImages() {
-	p_img0 = new ImagesRaw {};
-	p_img1 = new ImagesRaw {};
+	p_img0 = new Images {};
+	p_img1 = new Images {};
 }
 
-PairImages::PairImages(const ImagesRaw &a, const ImagesRaw &b) {
-	p_img0 = new ImagesRaw { a };
-	p_img1 = new ImagesRaw { b };
+PairImages::PairImages(Images &a, Images &b) {
+
+	try {
+		p_img0 = new ImagesRaw { dynamic_cast<ImagesRaw &>(a) };
+	} catch (...) {
+	}
+	try {
+		p_img1 = new ImagesRaw { dynamic_cast<ImagesRaw &>(b) };
+	} catch (...) {
+	}
+	try {
+		p_img0 = new ImagesCV { dynamic_cast<ImagesCV &>(a) };
+	} catch (...) {
+	}
+	try {
+		p_img1 = new ImagesCV { dynamic_cast<ImagesCV &>(b) };
+	} catch (...) {
+	}
+
 }
 
-PairImages::PairImages(const ImagesRaw &&a, const ImagesRaw &&b) {
-	p_img0 = new ImagesRaw { std::move(a) };
-	p_img1 = new ImagesRaw { std::move(b) };
+PairImages::PairImages(Images &&a, Images &&b) {
+
+	try {
+		p_img0 = new ImagesRaw { std::move(dynamic_cast<ImagesRaw &>(a)) };
+	} catch (...) {
+	}
+	try {
+		p_img1 = new ImagesRaw { std::move(dynamic_cast<ImagesRaw &>(b)) };
+	} catch (...) {
+	}
+	try {
+		p_img0 = new ImagesCV { std::move(dynamic_cast<ImagesCV &>(a)) };
+	} catch (...) {
+	}
+	try {
+		p_img1 = new ImagesCV { std::move(dynamic_cast<ImagesCV &>(b)) };
+	} catch (...) {
+	}
+
+//	p_img0 = new ImagesRaw { std::move(a) };
+//	p_img1 = new ImagesRaw { std::move(b) };
 }
 
-PairImages::PairImages(const ImagesRaw &a) {
-	p_img0 = new ImagesRaw { a };
-	p_img1 = new ImagesRaw {};
+PairImages::PairImages(Images &a) {
+	try {
+		p_img0 = new ImagesRaw { dynamic_cast<ImagesRaw &>(a) };
+		p_img1 = new ImagesRaw {};
+	} catch (...) {
+	}
+
+	try {
+		p_img0 = new ImagesCV { dynamic_cast<ImagesCV &>(a) };
+		p_img1 = new ImagesCV {};
+	} catch (...) {
+	}
+
+//	p_img0 = new ImagesRaw { a };
+//	p_img1 = new ImagesRaw {};
 }
 
-PairImages::PairImages(const ImagesRaw &&a) {
-	p_img0 = new ImagesRaw { std::move(a) };
-	p_img1 = new ImagesRaw {};
+PairImages::PairImages(Images &&a) {
+	try {
+		p_img0 = new ImagesRaw { std::move(dynamic_cast<ImagesRaw &>(a)) };
+		p_img1 = new ImagesRaw { };
+	} catch (...) {
+	}
+
+	try {
+		p_img0 = new ImagesCV { std::move(dynamic_cast<ImagesCV &>(a)) };
+		p_img1 = new ImagesCV { };
+	} catch (...) {
+	}
+
+//	p_img0 = new ImagesRaw { std::move(a) };
+//	p_img1 = new ImagesRaw {};
 }
 
-PairImages::PairImages(const PairImages &a) {
-	p_img0 = new ImagesRaw { *(a.p_img0) };
-	p_img1 = new ImagesRaw { *(a.p_img1) };
+PairImages::PairImages(PairImages &a) {
+
+	ImagesRaw *p0{};
+	ImagesRaw *p1{};
+
+	if ((p0 = dynamic_cast<ImagesRaw *>(a.p_img0))) {
+		p_img0 = new ImagesRaw { *p0 };
+	}
+	if ((p1 = dynamic_cast<ImagesRaw *>(a.p_img1))) {
+		p_img1 = new ImagesRaw { *p1 };
+	}
+
+	ImagesCV *p3{};
+	ImagesCV *p4{};
+
+	if ((p3 = dynamic_cast<ImagesCV *>(a.p_img0))) {
+		p_img0 = new ImagesCV { *p3 };
+	}
+	if ((p4 = dynamic_cast<ImagesCV *>(a.p_img1))) {
+		p_img1 = new ImagesCV { *p4 };
+	}
+
 }
 
 PairImages::PairImages(PairImages &&a) {
-	p_img0 = a.p_img0;
-	p_img1 = a.p_img1;
+
+	ImagesRaw *p0{};
+	ImagesRaw *p1{};
+
+	if ((p0 = dynamic_cast<ImagesRaw *>(a.p_img0))) {
+		p_img0 = new ImagesRaw { *p0 };
+	}
+	if ((p1 = dynamic_cast<ImagesRaw *>(a.p_img1))) {
+		p_img1 = new ImagesRaw { *p1 };
+	}
+
+	ImagesCV *p3{};
+	ImagesCV *p4{};
+
+	if ((p3 = dynamic_cast<ImagesCV *>(a.p_img0))) {
+		p_img0 = new ImagesCV { *p3 };
+	}
+	if ((p4 = dynamic_cast<ImagesCV *>(a.p_img1))) {
+		p_img1 = new ImagesCV { *p4 };
+	}
+
 	a.p_img0 = nullptr;
 	a.p_img1 = nullptr;
+}
+
+void PairImages::convertRaw2CV() {
+
+	ImagesRaw *p0 { };
+	ImagesRaw *p1 { };
+
+	if ((p0 = dynamic_cast<ImagesRaw *>(p_img0))) {
+		p_img0 = new ImagesCV { *p0 };
+	}
+	if ((p1 = dynamic_cast<ImagesRaw *>(p_img1))) {
+		p_img1 = new ImagesCV { *p1 };
+	}
+
 }
 
 void PairImages::showPair() {
@@ -52,7 +162,7 @@ void PairImages::showPair() {
 	p_img1->show(p_img1->getSerialNumber());
 }
 
-void PairImages::showPairConcat() {
+/*void PairImages::showPairConcat() {
 	if (p_img1->getImgBufferSize() != 0) {
 		cv::Mat m0 = p_img0->convertToCvMat();
 		cv::Mat m1 = p_img1->convertToCvMat();
@@ -135,6 +245,8 @@ PairImages & PairImages::operator=(PairImages &&a){
 	}
 	return *this;
 }
+
+*/
 
 PairImages::~PairImages() {
 	delete p_img0;
