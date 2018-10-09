@@ -15,6 +15,9 @@ public:
 
 	void show () const;
 	void show (std::string name) const;
+	virtual void showConcat (std::string name, Images &img2) const;
+
+	size_t getImgBufferSize () const { return openCvImage.total() * openCvImage.elemSize();};
 
 	virtual ~ImagesCV();
 };

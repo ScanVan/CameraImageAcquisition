@@ -148,37 +148,35 @@ void PairImages::convertRaw2CV() {
 	ImagesRaw *p0 { };
 	ImagesRaw *p1 { };
 
-	if ((p0 = dynamic_cast<ImagesRaw *>(p_img0))) {
-		p_img0 = new ImagesCV { *p0 };
-		delete p0;
-	}
-	if ((p1 = dynamic_cast<ImagesRaw *>(p_img1))) {
-		p_img1 = new ImagesCV { *p1 };
-		delete p1;
-	}
+	if (p_img0->getImgBufferSize() != 0)
+		if ((p0 = dynamic_cast<ImagesRaw *>(p_img0))) {
+			p_img0 = new ImagesCV { *p0 };
+			delete p0;
+		}
+	if (p_img1->getImgBufferSize() != 0)
+		if ((p1 = dynamic_cast<ImagesRaw *>(p_img1))) {
+			p_img1 = new ImagesCV { *p1 };
+			delete p1;
+		}
 
 }
 
 void PairImages::showPair() {
-	p_img0->show(p_img0->getSerialNumber());
-	p_img1->show(p_img1->getSerialNumber());
+	if (p_img0->getImgBufferSize() != 0)
+		p_img0->show(p_img0->getSerialNumber());
+	if (p_img1->getImgBufferSize() != 0)
+		p_img1->show(p_img1->getSerialNumber());
 }
 
-/*void PairImages::showPairConcat() {
+void PairImages::showPairConcat() {
 	if (p_img1->getImgBufferSize() != 0) {
-		cv::Mat m0 = p_img0->convertToCvMat();
-		cv::Mat m1 = p_img1->convertToCvMat();
-		cv::Mat m;
-		cv::hconcat(m0, m1, m);
-
-		/// Display
-		cv::namedWindow(p_img0->getSerialNumber() + "_" + p_img1->getSerialNumber(),cv::WINDOW_NORMAL);
-		cv::imshow(p_img0->getSerialNumber() + "_" + p_img1->getSerialNumber(), m);
+		p_img0->showConcat(p_img0->getSerialNumber() + "_" + p_img1->getSerialNumber(), *p_img1);
 	} else {
 		p_img0->show(p_img0->getSerialNumber());
 	}
 }
 
+/*
 void PairImages::showUndistortPairConcat (const cv::Mat & map_0_1, const cv::Mat & map_0_2, const cv::Mat & map_1_1, const cv::Mat & map_1_2) {
 
 	if (p_img1->getImgBufferSize() != 0) {

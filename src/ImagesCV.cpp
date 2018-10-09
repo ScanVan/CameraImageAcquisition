@@ -34,6 +34,20 @@ void ImagesCV::show(std::string name) const {
 	cv::imshow(name, openCvImage);
 };
 
+void ImagesCV::showConcat (std::string name, Images &img2) const {
+
+	cv::Mat m;
+	try {
+		cv::hconcat(openCvImage, dynamic_cast<ImagesCV &>(img2).openCvImage, m);
+	} catch (...) {
+		m = openCvImage;
+	}
+
+	/// Display
+	cv::namedWindow(name, cv::WINDOW_NORMAL);
+	cv::imshow(name, m);
+}
+
 ImagesCV::~ImagesCV() {
 	// TODO Auto-generated destructor stub
 }

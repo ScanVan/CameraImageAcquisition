@@ -54,6 +54,7 @@ public:
 	void saveData (std::string path);
 	void show () const;
 	void show (std::string name) const;
+	void showConcat (std::string name, Images &img2) const;
 
 	cv::Mat convertToCvMat ();
 

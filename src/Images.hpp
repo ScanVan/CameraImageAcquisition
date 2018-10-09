@@ -67,10 +67,12 @@ public:
 
 	virtual void show () const {};
 	virtual void show (std::string name) const {};
+	virtual void showConcat (std::string name, Images &img2) const {};
 	virtual void loadData (std::string path) {};
 	virtual void saveData (std::string path) {};
 	virtual void loadImage (std::string path) {};
 	virtual void saveImage (std::string path) {};
+	virtual size_t getImgBufferSize () const { return 0; };
 
 	virtual ~Images();
 };

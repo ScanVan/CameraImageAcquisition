@@ -357,6 +357,33 @@ void ImagesRaw::show (std::string name) const {
 	cv::imshow(name, openCvImage);
 }
 
+
+void ImagesRaw::showConcat (std::string name, Images &img2) const {
+// shows the concatenated image in an opencv window with the name provided as parameter
+
+	cv::Mat m;
+
+	cv::Mat openCvImageRG8 = cv::Mat(height, width, CV_8UC1, p_img->data());
+	cv::Mat openCvImage;
+	cv::cvtColor(openCvImageRG8, openCvImage, cv::COLOR_BayerRG2RGB);
+
+	try {
+		cv::Mat openCvImageRG8_2 = cv::Mat(dynamic_cast<ImagesRaw &>(img2).height, dynamic_cast<ImagesRaw &>(img2).width, CV_8UC1, dynamic_cast<ImagesRaw &>(img2).p_img->data());
+		cv::Mat openCvImage_2;
+		cv::cvtColor(openCvImageRG8_2, openCvImage_2, cv::COLOR_BayerRG2RGB);
+
+		cv::hconcat(openCvImage, openCvImage_2, m);
+	} catch (...) {
+		m = openCvImage;
+	}
+
+
+	/// Display
+	cv::namedWindow(name,cv::WINDOW_NORMAL);
+	cv::imshow(name, m);
+
+}
+
 std::string ImagesRaw::convertTimeToString (time_t t) {
 // It converts the time t into a string
 	struct tm *theTime{};
