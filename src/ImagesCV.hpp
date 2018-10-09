@@ -8,9 +8,9 @@ namespace ScanVan {
 
 class ImagesCV: public Images {
 private:
-	cv::Mat openCvImage;
+	cv::Mat * p_openCvImage;
 public:
-	ImagesCV(): Images() {};
+	ImagesCV();
 	ImagesCV(ImagesRaw &img);
 	ImagesCV(ImagesCV &img);
 	ImagesCV(ImagesCV &&img);
@@ -20,7 +20,7 @@ public:
 	void showConcat (std::string name, Images &img2) const;
 	void remap (const cv::Mat & map_1, const cv::Mat & map_2);
 
-	size_t getImgBufferSize () const { return openCvImage.total() * openCvImage.elemSize();};
+	size_t getImgBufferSize () const { return (*p_openCvImage).total() * (*p_openCvImage).elemSize();};
 
 	virtual ~ImagesCV();
 };
