@@ -89,6 +89,7 @@ PairImages::PairImages(Images &&a) {
 	} catch (...) {
 	}
 
+
 //	p_img0 = new ImagesRaw { std::move(a) };
 //	p_img1 = new ImagesRaw {};
 }
@@ -115,11 +116,13 @@ PairImages::PairImages(PairImages &a) {
 		p_img1 = new ImagesCV { *p4 };
 	}
 
+	imgType = a.imgType;
+
 }
 
 PairImages::PairImages(PairImages &&a) {
 
-	ImagesRaw *p0{};
+	/*ImagesRaw *p0{};
 	ImagesRaw *p1{};
 
 	if ((p0 = dynamic_cast<ImagesRaw *>(a.p_img0))) {
@@ -137,10 +140,15 @@ PairImages::PairImages(PairImages &&a) {
 	}
 	if ((p4 = dynamic_cast<ImagesCV *>(a.p_img1))) {
 		p_img1 = new ImagesCV { *p4 };
-	}
+	}*/
+
+	p_img0 = a.p_img0;
+	p_img1 = a.p_img1;
 
 	a.p_img0 = nullptr;
 	a.p_img1 = nullptr;
+
+	imgType = a.imgType;
 }
 
 void PairImages::convertRaw2CV() {
@@ -158,6 +166,27 @@ void PairImages::convertRaw2CV() {
 			p_img1 = new ImagesCV { *p1 };
 			delete p1;
 		}
+
+	imgType = ImgType::CV;
+}
+
+void PairImages::convertCV2Equi(const cv::Mat & map_0_1, const cv::Mat & map_0_2, const cv::Mat & map_1_1, const cv::Mat & map_1_2) {
+
+	ImagesCV *p0 {};
+	ImagesCV *p1 {};
+
+	if (imgType == ImgType::CV) {
+		if (p_img0->getImgBufferSize() != 0)
+			if ((p0 = dynamic_cast<ImagesCV *>(p_img0))) {
+				p0->remap(map_0_1, map_0_2);
+			}
+		if (p_img1->getImgBufferSize() != 0)
+			if ((p1 = dynamic_cast<ImagesCV *>(p_img1))) {
+				p1->remap(map_1_1, map_1_2);
+			}
+
+		imgType = ImgType::EQUI;
+	}
 
 }
 

@@ -12,10 +12,13 @@ private:
 public:
 	ImagesCV(): Images() {};
 	ImagesCV(ImagesRaw &img);
+	ImagesCV(ImagesCV &img);
+	ImagesCV(ImagesCV &&img);
 
 	void show () const;
 	void show (std::string name) const;
-	virtual void showConcat (std::string name, Images &img2) const;
+	void showConcat (std::string name, Images &img2) const;
+	void remap (const cv::Mat & map_1, const cv::Mat & map_2);
 
 	size_t getImgBufferSize () const { return openCvImage.total() * openCvImage.elemSize();};
 

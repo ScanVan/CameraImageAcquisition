@@ -22,6 +22,48 @@ ImagesCV::ImagesCV(ImagesRaw &img): Images{} {
 	serialNum = img.getSerialNumber();
 }
 
+ImagesCV::ImagesCV(ImagesCV &img): Images{} {
+
+	openCvImage = img.openCvImage.clone();
+
+	height = img.getHeight();
+	width = img.getWidth();
+	cameraIdx = img.getCameraIdx();	// camera index
+	captureTimeCPUStr = img.getCaptureCPUTime(); // capture time taken on the CPU in string format
+	captureTimeCamStr = img.getCaptureCamTime(); // trigger time retrieved from the camera, number of ticks, string format
+	exposureTime = img.getExposureTime();// exposure time
+	gain = img.getGain();		// gain
+	balanceR = img.getBalanceR();	// white balance R
+	balanceG = img.getBalanceG();	// white balance G
+	balanceB = img.getBalanceB();	// white balance B
+	autoExpTime = img.getAutoExpTime();	// Auto Exposure Time
+	autoGain = img.getAutoGain(); 		// Auto Gain
+	numImages = img.getImgNumber();
+	serialNum = img.getSerialNumber();
+}
+
+ImagesCV::ImagesCV(ImagesCV &&img): Images{} {
+
+	openCvImage = img.openCvImage;
+
+	height = img.getHeight();
+	width = img.getWidth();
+	cameraIdx = img.getCameraIdx();	// camera index
+	captureTimeCPUStr = img.getCaptureCPUTime(); // capture time taken on the CPU in string format
+	captureTimeCamStr = img.getCaptureCamTime(); // trigger time retrieved from the camera, number of ticks, string format
+	exposureTime = img.getExposureTime();// exposure time
+	gain = img.getGain();		// gain
+	balanceR = img.getBalanceR();	// white balance R
+	balanceG = img.getBalanceG();	// white balance G
+	balanceB = img.getBalanceB();	// white balance B
+	autoExpTime = img.getAutoExpTime();	// Auto Exposure Time
+	autoGain = img.getAutoGain(); 		// Auto Gain
+	numImages = img.getImgNumber();
+	serialNum = img.getSerialNumber();
+}
+
+
+
 void ImagesCV::show () const {
 	/// Display
 	cv::namedWindow("Image", cv::WINDOW_NORMAL);
@@ -47,6 +89,17 @@ void ImagesCV::showConcat (std::string name, Images &img2) const {
 	cv::namedWindow(name, cv::WINDOW_NORMAL);
 	cv::imshow(name, m);
 }
+
+void ImagesCV::remap (const cv::Mat & map_1, const cv::Mat & map_2) {
+
+	cv::Mat undistorted;
+
+	// main remapping function that undistort the images
+	cv::remap(openCvImage, undistorted, map_1, map_2, cv::INTER_CUBIC, cv::BORDER_CONSTANT);
+
+	openCvImage = undistorted;
+}
+
 
 ImagesCV::~ImagesCV() {
 	// TODO Auto-generated destructor stub

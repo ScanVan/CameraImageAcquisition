@@ -15,9 +15,12 @@
 
 namespace ScanVan {
 
+enum class ImgType {RAW, CV, EQUI};
+
 class PairImages {
 	Images *p_img0;
 	Images *p_img1;
+	ImgType imgType = ImgType::RAW;
 
 public:
 	PairImages();
@@ -28,6 +31,7 @@ public:
 	PairImages(PairImages &a);
 	PairImages(PairImages &&a);
 	void convertRaw2CV();
+	void convertCV2Equi(const cv::Mat & map_0_1, const cv::Mat & map_0_2, const cv::Mat & map_1_1, const cv::Mat & map_1_2);
 	void showPair();
 	void showPairConcat();
 	void showUndistortPairConcat (const cv::Mat & map_0_1, const cv::Mat & map_0_2, const cv::Mat & map_1_1, const cv::Mat & map_1_2);

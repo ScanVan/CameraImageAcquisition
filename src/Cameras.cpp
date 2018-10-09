@@ -495,7 +495,10 @@ void Cameras::DisplayImages() {
 
 	PairImages imgs2 {std::move(*imgs)};
 	imgs2.convertRaw2CV();
-	imgs2.showPairConcat();
+
+	PairImages imgs3 {std::move(imgs2)};
+	imgs3.convertCV2Equi(map_0_1, map_0_2, map_1_1, map_1_2);
+	imgs3.showPairConcat();
 
 	//imgs->showUndistortPairConcat(map_0_1, map_0_2, map_1_1, map_1_2);
 	key = cv::waitKey(1);
