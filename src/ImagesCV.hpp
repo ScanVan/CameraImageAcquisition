@@ -19,6 +19,8 @@ public:
 	void show (std::string name) const;
 	void showConcat (std::string name, Images &img2) const;
 	void remap (const cv::Mat & map_1, const cv::Mat & map_2);
+	void saveImage (std::string path);
+	void saveData (std::string path);
 
 	size_t getImgBufferSize () const { return (*p_openCvImage).total() * (*p_openCvImage).elemSize();};
 

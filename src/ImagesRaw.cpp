@@ -277,7 +277,6 @@ void ImagesRaw::saveData(std::string path) {
 // The image number and the camera index are extracted from the object.
 // The function will automatically add the .raw for the raw data image and .txt for the camera
 // configuration.
-	std::string ext = path.substr(path.find_last_of(".") + 1);
 
 	std::stringstream ss1 { };
 

@@ -238,16 +238,25 @@ void PairImages::showUndistortPairConcat (const cv::Mat & map_0_1, const cv::Mat
 		cv::imshow("Equirectangular_" + p_img0->getSerialNumber(), undistorted_0);
 	}
 }
+*/
 
 void PairImages::savePair(std::string path) {
-	p_img0->saveData(path);
-	if (p_img1->getImgBufferSize() != 0) {
-		p_img1->saveData(path);
+	if ((imgType == ImgType::RAW) || (imgType == ImgType::CV)) {
+		if (p_img0->getImgBufferSize() != 0) {
+			p_img0->saveData(path);
+		}
+		if (p_img1->getImgBufferSize() != 0) {
+			p_img1->saveData(path);
+		}
+	} else if (imgType == ImgType::EQUI) {
 	}
+
 }
 
 void PairImages::setImgNumber (const long int &n) {
-	p_img0->setImgNumber(n);
+	if (p_img0->getImgBufferSize() != 0) {
+		p_img0->setImgNumber(n);
+	}
 	if (p_img1->getImgBufferSize() != 0) {
 		p_img1->setImgNumber(n);
 	}
@@ -255,10 +264,30 @@ void PairImages::setImgNumber (const long int &n) {
 
 PairImages & PairImages::operator=(const PairImages &a){
 	if (this != &a) {
+
 		delete p_img0;
 		delete p_img1;
-		p_img0 = new ImagesRaw { *(a.p_img0) };
-		p_img1 = new ImagesRaw { *(a.p_img1) };
+
+		ImagesRaw *p0 { };
+		ImagesRaw *p1 { };
+
+		if ((p0 = dynamic_cast<ImagesRaw *>(a.p_img0))) {
+			p_img0 = new ImagesRaw { *p0 };
+		}
+		if ((p1 = dynamic_cast<ImagesRaw *>(a.p_img1))) {
+			p_img1 = new ImagesRaw { *p1 };
+		}
+
+		ImagesCV *p3 { };
+		ImagesCV *p4 { };
+
+		if ((p3 = dynamic_cast<ImagesCV *>(a.p_img0))) {
+			p_img0 = new ImagesCV { *p3 };
+		}
+		if ((p4 = dynamic_cast<ImagesCV *>(a.p_img1))) {
+			p_img1 = new ImagesCV { *p4 };
+		}
+
 	}
 	return *this;
 }
@@ -275,7 +304,6 @@ PairImages & PairImages::operator=(PairImages &&a){
 	return *this;
 }
 
-*/
 
 PairImages::~PairImages() {
 	delete p_img0;

@@ -113,6 +113,81 @@ void ImagesCV::remap (const cv::Mat & map_1, const cv::Mat & map_2) {
 	delete old_p_img;
 }
 
+void ImagesCV::saveImage (std::string path) {
+	// It saves the object's image to file
+	// It saves in bmp format
+	std::string ext = path.substr(path.find_last_of(".") + 1);
+
+	// Save the raw image into file
+	if (ext == "raw") {
+		throw std::runtime_error("Tried to save file in raw format from object ImagesCV");
+	} else if (ext == "bmp") {
+		try {
+			imwrite(path, *p_openCvImage);
+		} catch (std::exception & ex) {
+			std::cerr << "Error writing the bmp file: " << ex.what() << std::endl;
+			throw ex;
+		}
+	} else {
+		throw std::runtime_error("File extension not recognized when trying to save the image from ImagesCV.");
+	}
+}
+
+void ImagesCV::saveData(std::string path) {
+	// Saves the opencv image and the camera data to file
+	// Here path is the path to the directory where the images will be stored.
+	// The image number and the camera index are extracted from the object.
+	// The function will automatically add the .bmp for the opencv data image and .txt for the camera
+	// configuration.
+
+	std::string ext = path.substr(path.find_last_of(".") + 1);
+
+	std::stringstream ss1 { };
+
+	ss1 << path;
+	ss1 << "img_";
+	ss1 << cameraIdx;
+	ss1 << "_";
+	ss1 << numImages;
+	ss1 << ".bmp";
+
+//	std::stringstream ss2 { };
+//
+//	ss2 << path;
+//	ss2 << "img_";
+//	ss2 << cameraIdx;
+//	ss2 << "_";
+//	ss2 << numImages;
+//	ss2 << "_bmp";
+//	ss2 << ".txt";
+
+	std::string path_bmp;
+	ss1 >> path_bmp;
+
+	saveImage(path_bmp);
+
+//	std::string path_data;
+//	ss2 >> path_data;
+//	std::ofstream myFile(path_data);
+//	if (myFile.is_open()) {
+//		myFile << "BMP picture file: " << path_bmp << std::endl;
+//		myFile << "Image number: " << numImages << std::endl;
+//		myFile << "Camera Index: " << cameraIdx << std::endl;
+//		myFile << "Camera SN: " << serialNum << std::endl;
+//		myFile << "Capture Time CPU: " << captureTimeCPUStr << std::endl;
+//		myFile << "Capture Time Cam: " << captureTimeCamStr << std::endl;
+//		myFile << "Exposure Time: " << exposureTime << std::endl;
+//		myFile << "Gain: " << gain << std::endl;
+//		myFile << "Balance Red  : " << balanceR << std::endl;
+//		myFile << "Balance Green: " << balanceG << std::endl;
+//		myFile << "Balance Blue : " << balanceB << std::endl;
+//		myFile << "Auto Exposure Time Continuous: " << autoExpTime << std::endl;
+//		myFile << "Auto Gain Continuous: " << autoGain << std::endl;
+//		myFile.close();
+//	} else {
+//		throw std::runtime_error("Could not open the file to save camera data");
+//	}
+}
 
 ImagesCV::~ImagesCV() {
 	delete p_openCvImage;
