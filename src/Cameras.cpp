@@ -511,7 +511,9 @@ void Cameras::DisplayImages() {
 		imgStorageQueue.push (*imgs);
 		imgs2.setImgNumber(imgNum);
 		imgStorageQueue.push (imgs2);
-		//startSaving = true;
+		imgs3.setImgNumber(imgNum);
+		imgStorageQueue.push (imgs3);
+		startSaving = true;
 	}
 }
 

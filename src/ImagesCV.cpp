@@ -140,12 +140,10 @@ void ImagesCV::saveData(std::string path) {
 	// The function will automatically add the .bmp for the opencv data image and .txt for the camera
 	// configuration.
 
-	std::string ext = path.substr(path.find_last_of(".") + 1);
 
 	std::stringstream ss1 { };
 
 	ss1 << path;
-	ss1 << "img_";
 	ss1 << cameraIdx;
 	ss1 << "_";
 	ss1 << numImages;
@@ -187,6 +185,63 @@ void ImagesCV::saveData(std::string path) {
 //	} else {
 //		throw std::runtime_error("Could not open the file to save camera data");
 //	}
+}
+
+void ImagesCV::saveDataConcat (std::string path, Images &img2) {
+
+	// Saves the opencv image and the camera data to file
+	// Here path is the path to the directory where the images will be stored.
+	// The image number and the camera index are extracted from the object.
+	// The function will automatically add the .bmp for the opencv data image and .txt for the camera
+	// configuration.
+
+	std::stringstream ss1 { };
+
+	std::string year = captureTimeCPUStr.substr(0, captureTimeCPUStr.find_first_of("-"));
+	std::string token = captureTimeCPUStr.substr(captureTimeCPUStr.find_first_of("-")+1, captureTimeCPUStr.length());
+	std::string month = token.substr(0, token.find_first_of("-"));
+	token = token.substr(token.find_first_of("-")+1, token.length());
+	std::string day = token.substr(0, token.find_first_of(" "));
+	token = token.substr(token.find_first_of(" ")+1, token.length());
+	std::string hour = token.substr(0, token.find_first_of(":"));
+	token = token.substr(token.find_first_of(":")+1, token.length());
+	std::string min = token.substr(0, token.find_first_of(":"));
+	token = token.substr(token.find_first_of(":")+1, token.length());
+	std::string sec = token.substr(0, token.find_first_of(":"));
+	token = token.substr(token.find_first_of(":")+1, token.length());
+	std::string milisec = token.substr(0, token.find_first_of(":"));
+	token = token.substr(token.find_first_of(":")+1, token.length());
+	std::string microsec = token;
+
+	ss1 << path;
+	ss1 << year;
+	ss1 << month;
+	ss1 << day;
+	ss1 << "-";
+	ss1 << hour;
+	ss1 << min;
+	ss1 << sec;
+	ss1 << "-";
+	ss1 << milisec;
+	ss1 << microsec;
+	ss1 << ".bmp";
+
+	std::string path_bmp;
+	ss1 >> path_bmp;
+
+	cv::Mat m;
+	try {
+		m = *p_openCvImage;
+		cv::hconcat(*p_openCvImage, *((dynamic_cast<ImagesCV &>(img2)).p_openCvImage), m);
+	} catch (...) {
+		m = *p_openCvImage;
+	}
+	try {
+		imwrite(path_bmp, m);
+	} catch (std::exception & ex) {
+		std::cerr << "Error writing the bmp file for concatenated ImagesCV objects: " << ex.what() << std::endl;
+		throw ex;
+	}
 }
 
 ImagesCV::~ImagesCV() {

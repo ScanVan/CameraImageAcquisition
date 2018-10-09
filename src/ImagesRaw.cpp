@@ -281,7 +281,6 @@ void ImagesRaw::saveData(std::string path) {
 	std::stringstream ss1 { };
 
 	ss1 << path;
-	ss1 << "img_";
 	ss1 << cameraIdx;
 	ss1 << "_";
 	ss1 << numImages;
