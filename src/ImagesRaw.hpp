@@ -32,6 +32,10 @@ class ImagesRaw: public Images {
 private:
 	std::vector<uint8_t> * p_img;
 
+protected:
+	std::string convertTimeToString (time_t t);
+	time_t convertStringToTime (std::string str);
+
 public:
 	ImagesRaw();
 	ImagesRaw(char * p);
@@ -43,7 +47,6 @@ public:
 
 	size_t getImgBufferSize () const { return p_img->size(); };
 
-public:
 	void getBuffer (char *p) const;
 	void copyBuffer (char *p);
 	uint8_t* getBufferP ();
@@ -58,11 +61,6 @@ public:
 
 	cv::Mat convertToCvMat ();
 
-protected:
-	std::string convertTimeToString (time_t t);
-	time_t convertStringToTime (std::string str);
-
-public:
 	ImagesRaw & operator=(const ImagesRaw &a);
 	ImagesRaw & operator=(ImagesRaw &&a);
 

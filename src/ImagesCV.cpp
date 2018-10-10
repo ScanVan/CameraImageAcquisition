@@ -213,6 +213,14 @@ void ImagesCV::saveDataConcat (std::string path, Images &img2) {
 	token = token.substr(token.find_first_of(":")+1, token.length());
 	std::string microsec = token;
 
+	std::stringstream ss_milisec { };
+	ss_milisec << std::setw(3) << std::setfill('0') << std::stoi(milisec);
+	ss_milisec >> milisec;
+
+	std::stringstream ss_microsec { };
+	ss_microsec << std::setw(3) << std::setfill('0') << std::stoi(microsec);
+	ss_microsec >> microsec;
+
 	ss1 << path;
 	ss1 << year;
 	ss1 << month;
@@ -236,6 +244,7 @@ void ImagesCV::saveDataConcat (std::string path, Images &img2) {
 	} catch (...) {
 		m = *p_openCvImage;
 	}
+
 	try {
 		imwrite(path_bmp, m);
 	} catch (std::exception & ex) {

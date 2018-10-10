@@ -249,7 +249,7 @@ void PairImages::savePair(std::string path) {
 			p_img1->saveData(path);
 		}
 	} else if (imgType == ImgType::EQUI) {
-		(dynamic_cast<ImagesCV *>(p_img0))->saveDataConcat(path, *(dynamic_cast<ImagesCV *>(p_img1)));
+		(dynamic_cast<ImagesCV *>(p_img0))->saveDataConcat(path, *p_img1);
 	}
 }
 
