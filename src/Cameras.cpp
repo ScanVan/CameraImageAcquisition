@@ -492,12 +492,29 @@ void Cameras::DisplayImages() {
 	std::shared_ptr<PairImages> imgs { };
 	imgs = imgDisplayQueue.wait_pop();
 
+	std::chrono::high_resolution_clock::time_point t1{};
+	std::chrono::high_resolution_clock::time_point t2{};
+
+	t1 = std::chrono::high_resolution_clock::now();
 	PairImages imgs2 {*imgs};
 	imgs2.convertRaw2CV();
+	t2 = std::chrono::high_resolution_clock::now();
 
+	total_duration_raw2cv += t2 - t1;
+	number_conversions_raw2cv++;
+
+	std::chrono::high_resolution_clock::time_point t3 { };
+	std::chrono::high_resolution_clock::time_point t4 { };
+
+	t3 = std::chrono::high_resolution_clock::now();
 	PairImages imgs3 {imgs2};
 	imgs3.convertCV2Equi(map_0_1, map_0_2, map_1_1, map_1_2);
 	imgs3.showPairConcat();
+	t4 = std::chrono::high_resolution_clock::now();
+
+	total_duration_cv2equi += t4 - t3;
+	number_conversions_cv2equi++;
+
 
 	key = cv::waitKey(1);
 
@@ -513,7 +530,7 @@ void Cameras::DisplayImages() {
 		imgStorageQueue.push (imgs2);
 		imgs3.setImgNumber(imgNum);
 		imgStorageQueue.push (imgs3);
-		//startSaving = true;
+		startSaving = true;
 	}
 }
 
@@ -549,11 +566,29 @@ void Cameras::DemoLoadImages() {
 
 void Cameras::StoreImages() {
 
+	std::chrono::high_resolution_clock::time_point t1 { };
+	std::chrono::high_resolution_clock::time_point t2 { };
+
 	std::shared_ptr<PairImages> imgs { };
 	imgs = imgStorageQueue.wait_pop();
 	if (exitProgram != true) {
+		t1 = std::chrono::high_resolution_clock::now();
 		imgs->savePair(data_path);
+		t2 = std::chrono::high_resolution_clock::now();
+
+		if (imgs->getType() == ImgType::RAW) {
+			total_duration_sto_raw += t2 - t1;
+			number_sto_raw++;
+		} else if (imgs->getType() == ImgType::CV) {
+			total_duration_sto_cv += t2 - t1;
+			number_sto_cv++;
+		} else if (imgs->getType() == ImgType::EQUI) {
+			total_duration_sto_equi += t2 - t1;
+			number_sto_equi++;
+
+		}
 	}
+
 }
 
 void Cameras::SaveParameters(){

@@ -37,6 +37,30 @@ namespace ScanVan {
 
 class Cameras {
 private:
+	// for measuring the time for each part
+	long int number_disp { 0 };
+	long int number_conversions_raw2cv { 0 };
+	long int number_conversions_cv2equi { 0 };
+
+	long int number_grab { 0 };
+
+	long int number_sto { 0 };
+	long int number_sto_raw { 0 };
+	long int number_sto_cv { 0 };
+	long int number_sto_equi { 0 };
+
+	// for measuring the time for each part
+	double total_duration_disp { 0 };
+	std::chrono::duration<double> total_duration_raw2cv { 0 };
+	std::chrono::duration<double> total_duration_cv2equi { 0 };
+
+	double total_duration_grab { 0 };
+
+	double total_duration_sto { 0 };
+	std::chrono::duration<double> total_duration_sto_raw { 0 };
+	std::chrono::duration<double> total_duration_sto_cv { 0 };
+	std::chrono::duration<double> total_duration_sto_equi { 0 };
+
 	Pylon::IGigETransportLayer *pTL{};
 	// Limits the amount of cameras used for grabbing.
 	// It is important to manage the available bandwidth when grabbing with multiple
@@ -132,6 +156,7 @@ private:
 	double balanceB_1 { };
 
 public:
+
 	Cameras();
 	Cameras(std::string path_to_config_files);
 	size_t GetNumCam() const;
@@ -188,6 +213,54 @@ public:
 	void LoadMap();
 	void DemoLoadImages();
 	std::string StampTime();
+
+	void inc_disp_counter() {
+		number_disp++;
+	}
+	void inc_sto_counter() {
+		number_sto++;
+	}
+	void inc_grab_counter() {
+		number_grab++;
+	}
+
+	void set_disp_duration(const double &d) {
+		total_duration_disp = d;
+	}
+	void set_sto_duration(const double &d) {
+		total_duration_sto = d;
+	}
+	void set_grab_duration(const double &d) {
+		total_duration_grab = d;
+	}
+
+	double get_avg_disp() {
+		return total_duration_disp / number_disp * 1000.0;
+	}
+
+	double get_avg_sto() {
+		return total_duration_sto / number_sto * 1000.0;
+	}
+
+	double get_avg_grab() {
+		return total_duration_grab / number_grab * 1000.0;
+	}
+
+	double get_avg_raw2cv() {
+		return total_duration_raw2cv.count() / number_conversions_raw2cv * 1000.0;
+	}
+	double get_avg_cv2equi() {
+		return total_duration_cv2equi.count() / number_conversions_cv2equi * 1000.0;
+	}
+	double get_avg_sto_raw() {
+		return total_duration_sto_raw.count() / number_sto_raw * 1000.0;
+	}
+	double get_avg_sto_cv() {
+		return total_duration_sto_cv.count() / number_sto_cv * 1000.0;
+	}
+	double get_avg_sto_equi() {
+		return total_duration_sto_equi.count() / number_sto_equi * 1000.0;
+	}
 
 	virtual ~Cameras();
 };

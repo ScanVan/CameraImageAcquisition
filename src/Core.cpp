@@ -39,6 +39,9 @@ using namespace Pylon;
 // Namespace for using cout.
 using namespace std;
 
+// Namespace for Cameras
+using namespace ScanVan;
+
 std::string GetCurrentWorkingDir( void ) {
 // gets the current working directory
 	std::array<char, FILENAME_MAX> buff { { } };
@@ -58,6 +61,14 @@ void IssueTrigger (ScanVan::Cameras *cams) {
 
 	std::chrono::system_clock::time_point nextStartTime { };
 
+	long int counter { 0 };
+
+	// For measuring the trigger time
+	std::chrono::high_resolution_clock::time_point t1 { };
+	std::chrono::high_resolution_clock::time_point t2 { };
+
+	t1 = std::chrono::high_resolution_clock::now();
+
 	while (cams->getExitStatus() == false) {
 		// Setup timer
 		//nextStartTime = PreviousStartTime + intervalPeriodMicros;
@@ -68,7 +79,16 @@ void IssueTrigger (ScanVan::Cameras *cams) {
 		//PreviousStartTime = std::chrono::system_clock::now();
 
 		cams->IssueActionCommand();
+
+		++counter;
 	}
+
+	t2 = std::chrono::high_resolution_clock::now();
+
+	// Measure duration of grabbing
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+	cout << "===>Time lapse issue trigger: " << duration / counter / double(1000) << " ms" << endl;
+
 }
 
 void GrabImages(ScanVan::Cameras *cams) {
@@ -78,8 +98,6 @@ void GrabImages(ScanVan::Cameras *cams) {
 	std::chrono::high_resolution_clock::time_point t2{};
 	std::chrono::high_resolution_clock::time_point t1_i{};
 	std::chrono::high_resolution_clock::time_point t2_i{};
-
-	long int counter { 0 };
 
 	// Measure the starting of grabbing
 	t1 = std::chrono::high_resolution_clock::now();
@@ -99,7 +117,7 @@ void GrabImages(ScanVan::Cameras *cams) {
 		std::cout << "DQueue: " << cams->getDisplayQueueSize() << std::endl;
 		std::cout << "SQueue: " << cams->getStorageQueueSize() << std::endl;
 
-		++counter;
+		cams->inc_grab_counter();
 
 	}
 
@@ -107,32 +125,67 @@ void GrabImages(ScanVan::Cameras *cams) {
 	t2 = std::chrono::high_resolution_clock::now();
 
 	// Measure duration of grabbing
-	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
-	cout << "fps: " << double(1000000) * counter / duration << endl;
+	cams->set_grab_duration(std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count());
+
+
 
 }
 
 void StoreImages(ScanVan::Cameras *cams) {
 
+	std::chrono::high_resolution_clock::time_point t1 { };
+	std::chrono::high_resolution_clock::time_point t2 { };
+
+	// Measure the starting of displaying
+	t1 = std::chrono::high_resolution_clock::now();
+
+
 	while (cams->getExitStatus() == false) {
 		cams->StoreImages();
+		cams->inc_sto_counter();
 	}
 	while (cams->imgStorageQueueEmpty() == false) {
 		cams->StoreImages();
+		cams->inc_sto_counter();
 	}
+
+	t2 = std::chrono::high_resolution_clock::now();
+
+
+	// Measure duration of grabbing
+	cams->set_sto_duration(std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count());
 
 }
 
+
 void DisplayImages(ScanVan::Cameras *cams) {
+
+	std::chrono::high_resolution_clock::time_point t1{};
+	std::chrono::high_resolution_clock::time_point t2{};
+
+	// Measure the starting of displaying
+	t1 = std::chrono::high_resolution_clock::now();
 
 	while (cams->getExitStatus() == false) {
 
 		cams->DisplayImages();
+
+		cams->inc_disp_counter();
 
 	}
 	while (cams->imgDisplayQueueEmpty() == false) {
 		cams->DisplayImages();
+
+		cams->inc_disp_counter();
 	}
+
+	t2 = std::chrono::high_resolution_clock::now();
+
+
+	// Measure duration of grabbing
+	cams->set_disp_duration(std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count());
+
+
 }
 
 void DemoLoadImages(ScanVan::Cameras *cams) {
@@ -185,6 +238,18 @@ int main(int argc, char* argv[])
 		cv::destroyAllWindows();
 		//cams.SaveParameters();
 
+
+		cout << "===>Time lapse grab images: " <<  cams.get_avg_grab() << " ms" << endl;
+
+		cout << "===>Time lapse display images: " << cams.get_avg_disp() << " ms" << endl;
+		cout << "===>Time lapse raw to cv : " << cams.get_avg_raw2cv() << " ms" << endl;
+		cout << "===>Time lapse cv to equi: " << cams.get_avg_cv2equi() << " ms" << endl;
+
+		cout << "===>Time lapse store images: " << cams.get_avg_sto() << " ms" << endl;
+		cout << "===>Time lapse sto raw: " <<  cams.get_avg_sto_raw() << " ms" << endl;
+		cout << "===>Time lapse sto cv: " <<  cams.get_avg_sto_cv() << " ms" << endl;
+		cout << "===>Time lapse sto equi: " <<  cams.get_avg_sto_equi() << " ms" << endl;
+
 	} catch (const GenericException &e) {
 		// Error handling
 		cerr << "An exception occurred." << endl << e.GetDescription() << endl;
@@ -194,6 +259,8 @@ int main(int argc, char* argv[])
 		exitCode = 1;
 
 	}
+
+
 
     return exitCode;
 }

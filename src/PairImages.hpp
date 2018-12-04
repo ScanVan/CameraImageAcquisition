@@ -30,6 +30,7 @@ public:
 	PairImages(Images &&a);
 	PairImages(PairImages &a);
 	PairImages(PairImages &&a);
+	ImgType getType() { return imgType; }
 	void convertRaw2CV();
 	void convertCV2Equi(const cv::Mat & map_0_1, const cv::Mat & map_0_2, const cv::Mat & map_1_1, const cv::Mat & map_1_2);
 	void showPair();
