@@ -43,6 +43,7 @@ private:
 	long int number_conversions_cv2equi { 0 };
 
 	long int number_grab { 0 };
+	long int number_grab_int { 0 };
 
 	long int number_sto { 0 };
 	long int number_sto_raw { 0 };
@@ -55,6 +56,7 @@ private:
 	std::chrono::duration<double> total_duration_cv2equi { 0 };
 
 	double total_duration_grab { 0 };
+	std::chrono::duration<double> total_duration_grab_int { 0 };
 
 	double total_duration_sto { 0 };
 	std::chrono::duration<double> total_duration_sto_raw { 0 };
@@ -244,6 +246,10 @@ public:
 
 	double get_avg_grab() {
 		return total_duration_grab / number_grab * 1000.0;
+	}
+
+	double get_avg_grab_int() {
+			return total_duration_grab_int.count() / number_grab_int * 1000.0;
 	}
 
 	double get_avg_raw2cv() {

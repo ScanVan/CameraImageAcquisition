@@ -240,6 +240,7 @@ int main(int argc, char* argv[])
 
 
 		cout << "===>Time lapse grab images: " <<  cams.get_avg_grab() << " ms" << endl;
+		cout << "===>Time lapse grab images internal: " <<  cams.get_avg_grab_int() << " ms" << endl;
 
 		cout << "===>Time lapse display images: " << cams.get_avg_disp() << " ms" << endl;
 		cout << "===>Time lapse raw to cv : " << cams.get_avg_raw2cv() << " ms" << endl;

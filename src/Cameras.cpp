@@ -321,6 +321,8 @@ void Cameras::IssueActionCommand() {
 
 void Cameras::GrabImages() {
 
+	std::chrono::high_resolution_clock::time_point t1 { };
+	std::chrono::high_resolution_clock::time_point t2 { };
 
 	try {
 
@@ -378,6 +380,8 @@ void Cameras::GrabImages() {
 		}
 
 		// Retrieve images from all cameras.
+
+		t1 = std::chrono::high_resolution_clock::now();
 
 		for (size_t i = 0; i < cameras.GetSize() && cameras.IsGrabbing(); ++i) {
 
@@ -464,6 +468,11 @@ void Cameras::GrabImages() {
 				throw std::runtime_error ("Buffer was incompletely grabbed.");
 			}
 		}
+
+		t2 = std::chrono::high_resolution_clock::now();
+
+		total_duration_grab_int += t2 - t1;
+		number_grab_int++;
 
 		PairImages imgs2store { std::move(img0), std::move(img1) };
 		imgDisplayQueue.push(imgs2store);
