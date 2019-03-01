@@ -17,6 +17,10 @@ SET(GCC_COVERAGE_LINK_FLAGS "")
 SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
 SET( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}" )
 
+add_compile_options(
+  "$<$<CONFIG:DEBUG>:-O0;-g3>"
+)
+
 include_directories(/opt/pylon5/include)
 link_directories(/opt/pylon5/lib64)
 
