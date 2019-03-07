@@ -496,6 +496,167 @@ void Cameras::GrabImages() {
 
 }
 
+
+
+
+#include "EquiToPinhole.hpp"
+
+
+
+template<typename T>
+inline void polar2Spherical (const T &theta, const T &phi, cv::Matx<T,1,3> &p) {
+// Converts polar coordinates to spherical coordinates
+// Inputs:
+//		theta: scans on the x-y direction and is in the range [0,2pi]
+//		phi: scans on the z direction and is in the range [-pi/2, pi/2]
+// Output:
+//		p: the point in spherical coordinates
+
+	// coordinate conversion
+	p(0) = static_cast<T>(cos(theta) * cos(phi));
+	p(1) = static_cast<T>(sin(theta) * cos(phi));
+	p(2) = static_cast<T>(sin(phi));
+}
+
+template<typename T>
+inline void Spherical2Polar (const cv::Matx<T,1,3> &v, T &theta, T &phi){
+// Converts from spherical coordinates to polar coordinates
+// Input:
+//	v	: spherical coordinates
+// Outputs:
+//	theta	: the angle that corresponds to the x-direction on an equirectangular image, it goes from 0 (left) to 2pi (right)
+// 	rho		: the angle that corresponds to the y-direction on an equirectangular image, it goes from pi/2 (top) to -pi/2 (bottom)
+//
+// Remarks:
+//
+//		    y
+//         pi/2
+//	    	|
+//		    |
+//   pi ----------- 0 x
+//   		|
+// 	    	|
+//     	  3/2*pi
+//
+//			z
+//		   pi/2
+// 			|
+//          |
+//  -----------------
+//			|
+//			|
+//		  -pi/2
+
+	const T &x = v(0);
+	const T &y = v(1);
+	const T &z = v(2);
+
+	phi = asin(z);
+
+	T h = sqrt(x * x + y * y);
+
+	if (y >= 0) {
+		theta = acos(x / h);
+	} else {
+		theta = 2 * M_PI - acos(x / h);
+	}
+
+}
+
+//void mapToVec2f(cv:Vec2s &m1, short &m2, float &u, float &v){
+//    m1[j*2] = (short)(iu >> cv::INTER_BITS);
+//    m1[j*2+1] = (short)(iv >> cv::INTER_BITS);
+//    m2[j] = (ushort)((iv & (cv::INTER_TAB_SIZE-1))*cv::INTER_TAB_SIZE + (iu & (cv::INTER_TAB_SIZE-1)));
+//}
+//
+//void vec2fToMap(float u, float v, cv::Vec2s &m1, short &m2){
+//    int iu = cv::saturate_cast<int>(u*cv::INTER_TAB_SIZE);
+//    int iv = cv::saturate_cast<int>(v*cv::INTER_TAB_SIZE);
+//    m1[0] = (short)(iu >> cv::INTER_BITS);
+//    m1[1] = (short)(iv >> cv::INTER_BITS);
+//    m2 = (ushort)((iv & (cv::INTER_TAB_SIZE-1))*cv::INTER_TAB_SIZE + (iu & (cv::INTER_TAB_SIZE-1)));
+//}
+
+
+void rotateMap(cv::Mat &mapX, cv::Mat &mapY, cv::Mat &mapXRot, cv::Mat &mapYRot, float alpha){
+//	alpha = 0;
+	int w = mapX.cols, h = mapX.rows;
+	for(int y = 0; y < mapX.rows;y++){
+		for(int x = 0; x < mapX.cols;x++){
+			float theta = M_PI*x/w-M_PI/2;
+			float phi   = M_PI/2-M_PI*y/h;
+			cv::Matx13f s;
+			polar2Spherical<float>(theta, phi, s);
+			cv::Matx13f sRot;
+			sRot(1) = s(1) * cos(alpha) - s(2) * sin(alpha);
+			sRot(2) = s(1) * sin(alpha) + s(2) * cos(alpha);
+			sRot(0) = s(0);
+			float thetaRot;
+			float phiRot;
+			Spherical2Polar<float>(sRot, thetaRot, phiRot);
+			float xRot = (thetaRot+M_PI/2)*w/M_PI;
+			float yRot = (M_PI/2-phiRot)*h/M_PI;
+			if(x == 1000 && y == 3008/2){
+				int xs = 2;
+			}
+			int xi = (int)xRot %(w), yi = (int)yRot %(h);
+			if(xi > 0 && xi < w-1 && yi > 0 && yi < h-1){
+				float xfb = xRot-((int)xRot), yfb = yRot-((int)yRot);
+				float xfa = 1.0f-xfb, yfa = 1.0f-yfb;
+				mapXRot.at<float>(y, x) = (mapX.at<float>(yi, xi)*xfa + mapX.at<float>(yi, xi+1)*xfb)*yfa + (mapX.at<float>(yi+1, xi)*xfa + mapX.at<float>(yi+1, xi+1)*xfb)*yfb;
+				mapYRot.at<float>(y, x) = (mapY.at<float>(yi, xi)*xfa + mapY.at<float>(yi, xi+1)*xfb)*yfa + (mapY.at<float>(yi+1, xi)*xfa + mapY.at<float>(yi+1, xi+1)*xfb)*yfb;
+			} else {
+				mapXRot.at<float>(y, x) = 0;
+				mapYRot.at<float>(y, x) = 0;
+			}
+//			mapXRot.at<float>(y, x) = mapX.at<float>(yi, xi);
+//			mapYRot.at<float>(y, x) = mapY.at<float>(yi, xi);
+
+
+		}
+	}
+}
+
+string type2str(int type) {
+  string r;
+
+  uchar depth = type & CV_MAT_DEPTH_MASK;
+  uchar chans = 1 + (type >> CV_CN_SHIFT);
+
+  switch ( depth ) {
+    case CV_8U:  r = "8U"; break;
+    case CV_8S:  r = "8S"; break;
+    case CV_16U: r = "16U"; break;
+    case CV_16S: r = "16S"; break;
+    case CV_32S: r = "32S"; break;
+    case CV_32F: r = "32F"; break;
+    case CV_64F: r = "64F"; break;
+    default:     r = "User"; break;
+  }
+
+  r += "C";
+  r += (chans+'0');
+
+  return r;
+}
+
+
+
+#include "opencv2/highgui/highgui.hpp"
+void rotCalibClick(int event, int x, int y, int flags, void* userdata)
+{
+	auto ctx = (RotCalibContext*)userdata;
+	if  ( event == cv::EVENT_LBUTTONDOWN ){
+		ctx->pos[ctx->clickCounter].x = x;
+		ctx->pos[ctx->clickCounter].y = y;
+		ctx->clickCounter += 1;
+		ctx->clickCounter &= 1;
+	}
+}
+
+
+
+
 void Cameras::DisplayImages() {
 	int key { };
 	std::shared_ptr<PairImages> imgs { };
@@ -517,21 +678,96 @@ void Cameras::DisplayImages() {
 
 	t3 = std::chrono::high_resolution_clock::now();
 	PairImages imgs3 {imgs2};
-	imgs3.convertCV2Equi(map_0_1, map_0_2, map_1_1, map_1_2);
+
+
+	imgs3.convertCV2Equi(map_0_1s, map_0_2s, map_1_1s, map_1_2s);
 	imgs3.showPairConcat();
+
+
 	t4 = std::chrono::high_resolution_clock::now();
 
 	total_duration_cv2equi += t4 - t3;
 	number_conversions_cv2equi++;
 
 
-	key = cv::waitKey(1);
 
+
+	if(pineholeDisplayEnable){
+		cv::Mat concat = imgs3.rgbConcat();
+		cv::Mat pinhole1(1000, 1000, CV_8UC3), pinhole2(1000, 1000, CV_8UC3);
+		equiToPinhole(concat, pinhole1, 60, 0, 0);
+		equiToPinhole(concat, pinhole2, 60, M_PI, 0);
+
+		rotCalibContexts[0].draw(pinhole1);
+		rotCalibContexts[1].draw(pinhole2);
+
+		cv::namedWindow("pinhole1", cv::WINDOW_NORMAL);
+		cv::setMouseCallback("pinhole1", rotCalibClick, &rotCalibContexts[0]);
+		imshow( "pinhole1", pinhole1 );
+		cv::namedWindow("pinhole2", cv::WINDOW_NORMAL);
+		cv::setMouseCallback("pinhole2", rotCalibClick, &rotCalibContexts[1]);
+		imshow( "pinhole2", pinhole2 );
+	}
+
+	key = cv::waitKey(20);
+
+
+	if(key == 'p'){
+		pineholeDisplayEnable = !pineholeDisplayEnable;
+	}
+
+	bool genMap = false;
+	if(key == 'f'){
+		imgDisplayQueue.flush();
+	}
+	if(key == '2'){
+		rotCalibAlpha -= M_PI/18000;
+		genMap = true;
+	}
+	if(key == '3'){
+		rotCalibAlpha += M_PI/18000;
+		genMap = true;
+	}
+	if(key == '1'){
+		rotCalibAlpha -= M_PI/1800;
+		genMap = true;
+	}
+	if(key == '4'){
+		rotCalibAlpha += M_PI/1800;
+		genMap = true;
+	}
+//	genMap = true;
+//
+//	rotCalibAlpha += M_PI/180;
+	if(genMap){
+		cv::Mat map_1_1_rotf(map_1_1f.rows, map_1_1f.cols, CV_32FC1);
+		cv::Mat map_1_2_rotf(map_1_2f.rows, map_1_2f.cols, CV_32FC1);
+
+		rotateMap(map_1_1f, map_1_2f, map_1_1_rotf, map_1_2_rotf, rotCalibAlpha);
+		cv::convertMaps(map_1_1_rotf, map_1_2_rotf, map_1_1s, map_1_2s, CV_16SC2);
+		imgDisplayQueue.flush();
+		cout << "************** " << rotCalibAlpha << endl;
+		cout << "************** " << rotCalibAlpha << endl;
+		cout << "************** " << rotCalibAlpha << endl;
+		cout << "************** " << rotCalibAlpha << endl;
+		cout << "************** " << rotCalibAlpha << endl;
+		cv::waitKey(200);
+	}
+
+	if(key == '5'){
+		cv::Mat map_1_1_rotf(map_1_1f.rows, map_1_1f.cols, CV_32FC1);
+		cv::Mat map_1_2_rotf(map_1_2f.rows, map_1_2f.cols, CV_32FC1);
+		rotateMap(map_1_1f, map_1_2f, map_1_1_rotf, map_1_2_rotf, rotCalibAlpha);
+		cv::FileStorage map1File("map1.xml", cv::FileStorage::WRITE);
+		map1File << "mat_map1" << map_1_1_rotf;
+		cv::FileStorage map2File("map2.xml", cv::FileStorage::WRITE);
+		map2File << "mat_map2" << map_1_2_rotf;
+	}
 	if (key == 27) {
 		// if ESC key is pressed signal to exit the program
 		exitProgram = true;
 		imgStorageQueue.push (*imgs);
-	} else if ((key == 83) || (key == 115) || startSaving) {
+	} else if ((key == 's') || (key == 'S') || startSaving) {
 		++imgNum; // increase the image number;
 		imgs->setImgNumber(imgNum);
 		imgStorageQueue.push (*imgs);
@@ -717,7 +953,7 @@ void Cameras::LoadMap() {
 
 		cv::FileStorage file_0_1(filename1, cv::FileStorage::READ);
 		if (file_0_1.isOpened()) {
-			file_0_1["mat_map1"] >> map_0_1;
+			file_0_1["mat_map1"] >> map_0_1f;
 			file_0_1.release();
 			std::cout << "Read " << filename1 << std::endl;
 		} else {
@@ -733,18 +969,20 @@ void Cameras::LoadMap() {
 
 		cv::FileStorage file_0_2(filename2, cv::FileStorage::READ);
 		if (file_0_2.isOpened()) {
-			file_0_2["mat_map2"] >> map_0_2;
+			file_0_2["mat_map2"] >> map_0_2f;
 			file_0_2.release();
 			std::cout << "Read " << filename2 << std::endl;
 		} else {
 			throw std::runtime_error("Could not load map_0_2.");
 		}
 
+		cv::convertMaps(map_0_1f, map_0_2f, map_0_1s, map_0_2s, CV_16SC2);
 		if (cameras.GetSize() == 1) {
-			map_1_1 = map_0_1;
-			map_1_2 = map_0_2;
+			map_1_1f = map_0_1f;
+			map_1_2f = map_0_2f;
+			map_1_1s = map_0_1s;
+			map_1_2s = map_0_2s;
 		}
-
 	}
 
 	if (cameras.GetSize() == 2) {
@@ -761,7 +999,7 @@ void Cameras::LoadMap() {
 
 		cv::FileStorage file_1_1(filename3, cv::FileStorage::READ);
 		if (file_1_1.isOpened()) {
-			file_1_1["mat_map1"] >> map_1_1;
+			file_1_1["mat_map1"] >> map_1_1f;
 			file_1_1.release();
 			std::cout << "Read " << filename3 << std::endl;
 		} else {
@@ -777,13 +1015,14 @@ void Cameras::LoadMap() {
 
 		cv::FileStorage file_1_2(filename4, cv::FileStorage::READ);
 		if (file_1_2.isOpened()) {
-			file_1_2["mat_map2"] >> map_1_2;
+			file_1_2["mat_map2"] >> map_1_2f;
 			file_1_2.release();
 			std::cout << "Read " << filename4 << std::endl;
 		} else {
 			throw std::runtime_error("Could not load map_0_2.");
 		}
 
+		cv::convertMaps(map_1_1f, map_1_2f, map_1_1s, map_1_2s, CV_16SC2);
 	}
 
 }

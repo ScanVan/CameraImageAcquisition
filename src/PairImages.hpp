@@ -38,6 +38,7 @@ public:
 	//void showUndistortPairConcat (const cv::Mat & map_0_1, const cv::Mat & map_0_2, const cv::Mat & map_1_1, const cv::Mat & map_1_2);
 	void savePair(std::string path);
 	void setImgNumber (const long int &n);
+	cv::Mat rgbConcat();
 	PairImages & operator=(const PairImages &a);
 	PairImages & operator=(PairImages &&a);
 	virtual ~PairImages();

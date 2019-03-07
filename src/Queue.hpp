@@ -44,6 +44,12 @@ public:
 		}
 	}
 
+	void flush(){
+		std::lock_guard<std::mutex> lg{m};
+		while(!queue.empty()) queue.pop();
+	}
+
+
 	std::shared_ptr<T> wait_pop() {
 		std::unique_lock<std::mutex> lg{m};
 		cv.wait(lg, [this] {

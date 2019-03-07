@@ -23,6 +23,7 @@ public:
 	void saveData (std::string path);
 	void saveDataConcat (std::string path, Images &img2);
 
+	cv::Mat * getMat(){return p_openCvImage;}
 	size_t getImgBufferSize () const { return (*p_openCvImage).total() * (*p_openCvImage).elemSize();};
 
 	virtual ~ImagesCV();

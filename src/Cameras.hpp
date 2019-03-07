@@ -35,6 +35,19 @@
 
 namespace ScanVan {
 
+class RotCalibContext{
+public:
+	cv::Point pos[2];
+	int clickCounter = 0;
+
+	void draw(cv::Mat &g){
+		cv::circle(g, pos[0],10,cv::Scalar(0,255,0),2);
+		cv::circle(g, pos[1],10,cv::Scalar(0,255,0),2);
+
+		cv::line(g, pos[0]-2*(pos[1]-pos[0]), pos[1]-2*(pos[0]-pos[1]), cv::Scalar(255,0,0), 1);
+	}
+};
+
 class Cameras {
 private:
 	// for measuring the time for each part
@@ -125,10 +138,15 @@ private:
 	//               |- map1.xml
 	//               |- map2.xml
 
-	cv::Mat map_0_1;
-	cv::Mat map_0_2;
-	cv::Mat map_1_1;
-	cv::Mat map_1_2;
+	cv::Mat map_0_1f;
+	cv::Mat map_0_2f;
+	cv::Mat map_1_1f;
+	cv::Mat map_1_2f;
+
+	cv::Mat map_0_1s;
+	cv::Mat map_0_2s;
+	cv::Mat map_1_1s;
+	cv::Mat map_1_2s;
 
 	thread_safe_queue<PairImages> imgStorageQueue {}; // The queue where the pair of images are stored for storage.
 	thread_safe_queue<PairImages> imgDisplayQueue {}; // The queue where the pair of images are stored for display.
@@ -156,6 +174,12 @@ private:
 	double balanceR_1 { };
 	double balanceG_1 { };
 	double balanceB_1 { };
+
+	//Rotation calibration stuff
+	float rotCalibAlpha = 0;
+	bool pineholeDisplayEnable = false;
+	RotCalibContext rotCalibContexts[2];
+
 
 public:
 
@@ -267,6 +291,7 @@ public:
 	double get_avg_sto_equi() {
 		return total_duration_sto_equi.count() / number_sto_equi * 1000.0;
 	}
+
 
 	virtual ~Cameras();
 };

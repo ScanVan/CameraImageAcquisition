@@ -190,6 +190,17 @@ void PairImages::convertCV2Equi(const cv::Mat & map_0_1, const cv::Mat & map_0_2
 
 }
 
+cv::Mat PairImages::rgbConcat(){
+	cv::Mat *i0 = ((ImagesCV*)p_img0)->getMat();
+	cv::Mat *i1 = ((ImagesCV*)p_img1)->getMat();
+	cv::Mat dst(i0->rows, i0->cols*2, CV_8UC3);
+	i0->copyTo(dst.colRange(0, i0->cols));
+	i1->copyTo(dst.colRange(i0->cols, i0->cols*2));
+	return dst;
+}
+
+
+
 void PairImages::showPair() {
 	if (p_img0->getImgBufferSize() != 0)
 		p_img0->show(p_img0->getSerialNumber());
@@ -292,6 +303,10 @@ PairImages & PairImages::operator=(const PairImages &a){
 	return *this;
 }
 
+
+
+
+
 PairImages & PairImages::operator=(PairImages &&a){
 	if (this != &a) {
 		delete p_img0;
@@ -309,5 +324,8 @@ PairImages::~PairImages() {
 	delete p_img0;
 	delete p_img1;
 }
+
+
+
 
 } /* namespace ScanVan */
