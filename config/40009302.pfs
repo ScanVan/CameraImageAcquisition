@@ -17,11 +17,11 @@ LightSourceSelector	Daylight
 ColorTransformationSelector	RGBtoRGB
 BalanceWhiteAuto	Off
 BalanceRatioSelector	Red
-BalanceRatioRaw	101
+BalanceRatioRaw	110
 BalanceRatioSelector	Green
 BalanceRatioRaw	64
 BalanceRatioSelector	Blue
-BalanceRatioRaw	146
+BalanceRatioRaw	143
 BalanceRatioSelector	Red
 ColorTransformationMatrixFactorRaw	65536
 ColorAdjustmentEnable	1
@@ -49,7 +49,7 @@ ColorAdjustmentSaturationRaw	133
 ColorAdjustmentSelector	Blue
 ColorAdjustmentSaturationRaw	124
 ColorAdjustmentSelector	Magenta
-ColorAdjustmentSaturationRaw	109
+ColorAdjustmentSaturationRaw	200
 ColorAdjustmentSelector	Red
 Width	3008
 Height	3008

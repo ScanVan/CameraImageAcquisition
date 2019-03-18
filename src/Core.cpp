@@ -211,8 +211,8 @@ int main(int argc, char* argv[])
 
     try {
 
-    	//ScanVan::Cameras cams { config_path };
-		ScanVan::Cameras cams {};
+    	ScanVan::Cameras cams { config_path };
+//		ScanVan::Cameras cams {};
 		//cams.setDataPath(data_path);
 
 		//DemoLoadImages(&cams);

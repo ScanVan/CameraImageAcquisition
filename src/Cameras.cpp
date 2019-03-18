@@ -771,10 +771,10 @@ void Cameras::DisplayImages() {
 		++imgNum; // increase the image number;
 		imgs->setImgNumber(imgNum);
 		imgStorageQueue.push (*imgs);
-		imgs2.setImgNumber(imgNum);
-		imgStorageQueue.push (imgs2);
-		imgs3.setImgNumber(imgNum);
-		imgStorageQueue.push (imgs3);
+//		imgs2.setImgNumber(imgNum);
+//		imgStorageQueue.push (imgs2);
+//		imgs3.setImgNumber(imgNum);
+//		imgStorageQueue.push (imgs3);
 		startSaving = true;
 	}
 }

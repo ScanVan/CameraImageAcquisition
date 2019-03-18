@@ -17,11 +17,11 @@ LightSourceSelector	Daylight
 ColorTransformationSelector	RGBtoRGB
 BalanceWhiteAuto	Off
 BalanceRatioSelector	Red
-BalanceRatioRaw	101
+BalanceRatioRaw	98
 BalanceRatioSelector	Green
 BalanceRatioRaw	64
 BalanceRatioSelector	Blue
-BalanceRatioRaw	146
+BalanceRatioRaw	147
 BalanceRatioSelector	Red
 ColorTransformationMatrixFactorRaw	65536
 ColorAdjustmentEnable	1
