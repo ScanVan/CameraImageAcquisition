@@ -155,9 +155,14 @@ void Cameras::Init() {
 
 		cameras[i].GevSCPSPacketSize.SetValue(8192);
 		//cameras[i].GevSCPSPacketSize.SetValue(9000);
-		cameras[i].GevSCPD.SetValue(50); // Inter-packet delay
+		cameras[i].GevSCPD.SetValue(3500); // Inter-packet delay
 		//cameras[i].GevSCPD.SetValue(20); // Inter-packet delay
-		cameras[i].GevSCFTD.SetValue(0); // Frame-transmission delay
+		//cameras[i].GevSCFTD.SetValue(0); // Frame-transmission delay
+        if (i==0)
+            cameras[i].GevSCFTD.SetValue(0); // Frame-transmission delay
+        else
+            cameras[i].GevSCFTD.SetValue(2000); // Frame-transmission delay
+
 		cameras[i].GevSCBWRA.SetValue(cameras[i].GevSCBWRA.GetMax());
 
 		cameras[i].GainAuto.SetValue(GainAuto_Off);
