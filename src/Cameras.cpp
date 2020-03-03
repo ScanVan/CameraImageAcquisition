@@ -781,6 +781,15 @@ void Cameras::DisplayImages() {
 //		imgs3.setImgNumber(imgNum);
 //		imgStorageQueue.push (imgs3);
 		startSaving = true;
+	} else if ((key == 'c') || (key == 'C') || startSaving) {
+		++imgNum; // increase the image number;
+		imgs->setImgNumber(imgNum);
+		imgStorageQueue.push (*imgs);
+//		imgs2.setImgNumber(imgNum);
+//		imgStorageQueue.push (imgs2);
+//		imgs3.setImgNumber(imgNum);
+//		imgStorageQueue.push (imgs3);
+		startSaving = false;
 	}
 }
 
